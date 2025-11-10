@@ -1,0 +1,42 @@
+/* Minimalist Orders styles */
+.profile-page { background: #fafafa; min-height: 100vh; padding: 24px 0; }
+.container { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+.profile-card { background: #fff; border-radius: 10px; box-shadow: 0 6px 18px rgba(20,20,20,0.06); overflow: hidden; }
+.profile-header { padding: 20px 24px; border-bottom: 1px solid #f0f0f0; }
+.profile-header h2 { margin: 0; font-size: 20px; }
+.profile-header .muted { color: #666; font-size: 13px; margin-top: 6px; }
+.profile-body { padding: 18px 24px; }
+
+.orders-grid { display: flex; flex-direction: column; gap: 12px; }
+.order-card { padding: 14px 16px; border-radius: 8px; background: #fff; cursor: pointer; border: 1px solid transparent; transition: box-shadow .12s ease, border-color .12s ease; }
+.order-card:hover { box-shadow: 0 8px 24px rgba(20,20,20,0.06); border-color: #ececec; }
+.order-card-header { display: flex; justify-content: space-between; align-items: center; }
+.order-number { font-weight: 600; }
+.order-date { font-size: 13px; color: #777; margin-top: 4px; }
+.order-total { font-weight: 700; }
+
+.order-card-body { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #eee; display: flex; gap: 16px; }
+.order-details { flex: 1; }
+.order-shipment { width: 260px; border-left: 1px solid #f5f5f5; padding-left: 16px; }
+
+.order-items-list { display: flex; flex-direction: column; gap: 12px; }
+.order-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #fafafa; }
+.order-item-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; }
+.order-item-title { display: block; font-size: 15px; }
+.order-item-sub { font-size: 13px; color: #666; margin-top: 4px; }
+.order-item-right { text-align: right; min-width: 120px; }
+.order-item-qty { color: #444; font-size: 13px; }
+.order-item-line { font-weight: 600; margin-top: 6px; }
+
+/* Badges */
+.badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-green { background: #e6ffed; color: #137a3d; }
+.badge-yellow { background: #fff7e6; color: #a66a00; }
+.badge-gray { background: #f3f4f6; color: #666; }
+
+.muted { color: #777; }
+
+@media (max-width: 700px) {
+  .order-card-body { flex-direction: column; }
+  .order-shipment { width: 100%; border-left: none; padding-left: 0; }
+}

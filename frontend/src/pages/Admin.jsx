@@ -16,6 +16,7 @@ const Admin = () => {
   const [ordersList, setOrdersList] = useState([])
   const [usersList, setUsersList] = useState([])
   const [shipmentStates, setShipmentStates] = useState({})
+  const [expandedOrder, setExpandedOrder] = useState(null)
 
   const [clothingForm, setClothingForm] = useState({
     name: '',
@@ -238,6 +239,43 @@ const Admin = () => {
       console.error('Failed to fetch orders:', err)
       showMessage('Failed to fetch orders', true)
     }
+  }
+
+  const toggleOrder = (id) => setExpandedOrder(prev => (prev === id ? null : id))
+
+  const renderOrderItems = (itemsJson) => {
+    let items = []
+    try {
+      items = JSON.parse(itemsJson || '[]')
+    } catch (e) {
+      items = []
+    }
+    if (items.length === 0) return <div className="muted">No item details</div>
+    return (
+      <div className="order-items-list">
+        {items.map((it, idx) => (
+          <div key={idx} className="order-item-row">
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              <img src={it.image_url || 'https://via.placeholder.com/80'} alt={it.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
+              <div>
+                <strong>{it.name}</strong>
+                <div style={{ color: '#666', fontSize: 13 }}>{(it.subcategory || '')} • ₹{it.price}</div>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right', minWidth: 120 }}>
+              <div style={{ color: '#444', fontSize: 13 }}>Qty: {it.quantity}</div>
+              <div style={{ fontWeight: 600, marginTop: 6 }}>₹{(it.price * (it.quantity || 1)).toFixed(2)}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const orderStatusBadge = (o) => {
+    if (o.shipment && o.shipment.tracking_number) return <span className="shipped-badge">Shipped</span>
+    if (o.shipment) return <span className="badge badge-yellow">In transit</span>
+    return <span className="badge badge-gray">Pending</span>
   }
 
   const fetchUsersList = async () => {
@@ -879,46 +917,59 @@ const Admin = () => {
               <div style={{ marginBottom: 16 }}>
                 <button className="btn btn-secondary" onClick={fetchOrdersList}>Refresh Orders</button>
               </div>
-              <div className="orders-list">
+              <div className="orders-grid">
                 {ordersList.map(o => (
-                  <div key={o.id} className="order-row" style={{ padding: 12, borderBottom: '1px solid #f5f5f5' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                      <div style={{ flex: 1 }}>
+                  <div key={o.id} className={`admin-order-card ${expandedOrder === o.id ? 'expanded' : ''}`}>
+                    <div className="admin-order-card-header" onClick={() => toggleOrder(o.id)}>
+                      <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <strong>Order #{o.id}</strong>
-                          {o.shipment && (
-                            <span className="shipped-badge">Shipped</span>
-                          )}
+                          <div className="muted" style={{ fontSize: 13, marginLeft: 6 }}>{new Date(o.created_at || o.createdAt).toLocaleString()}</div>
                         </div>
-                        <div className="muted">Placed: {o.created_at}</div>
-                        <div style={{ marginTop: 8 }}>
-                          <div><strong>Customer:</strong> {o.customer_name} — {o.email} — {o.phone}</div>
-                          <div style={{ marginTop: 6 }}><strong>Address:</strong> {o.address}</div>
-                          <div style={{ marginTop: 6 }}><strong>Total:</strong> ₹{o.total_amount}</div>
-                          <div style={{ marginTop: 8 }}>
-                            <strong>Items:</strong>
-                            <ul>
-                              {(JSON.parse(o.items) || []).map((it, idx) => (
-                                <li key={idx}>{it.name} x {it.quantity} — ₹{it.price}</li>
-                              ))}
-                            </ul>
+                        <div style={{ marginTop: 6 }}>
+                          <div><strong>Customer:</strong> {o.customer_name}</div>
+                          <div className="muted" style={{ fontSize: 13 }}>{o.email} • {o.phone}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ textAlign: 'right' }}>
+                        {orderStatusBadge(o)}
+                        <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>Tap to view</div>
+                      </div>
+                    </div>
+
+                    {expandedOrder === o.id && (
+                      <div className="admin-order-card-body" onClick={(e) => e.stopPropagation()}>
+                        <div className="admin-order-left">
+                          <div className="muted"><strong>Address:</strong> {o.address}</div>
+                          <div style={{ marginTop: 12 }}>
+                            <h4 style={{ margin: '6px 0' }}>Items</h4>
+                            {renderOrderItems(o.items)}
+                          </div>
+                        </div>
+                        <div className="admin-order-right">
+                          <div className="order-summary">
+                            <div style={{ fontSize: 12, color: '#6b7280' }}>Total</div>
+                            <div className="order-total" style={{ fontSize: 20, marginTop: 6 }}>₹{o.total_amount}</div>
+                            <div style={{ marginTop: 8 }}>{orderStatusBadge(o)}</div>
+                          </div>
+
+                          <div className="shipment-form">
+                            <label className="shipment-label">Courier</label>
+                            <input className="shipment-input" type="text" value={(shipmentStates[o.id] && shipmentStates[o.id].courier_name) || ''} onChange={(e) => setShipmentStates(prev => ({ ...prev, [o.id]: { ...(prev[o.id] || {}), courier_name: e.target.value } }))} />
+
+                            <label className="shipment-label">Tracking #</label>
+                            <input className="shipment-input" type="text" value={(shipmentStates[o.id] && shipmentStates[o.id].tracking_number) || ''} onChange={(e) => setShipmentStates(prev => ({ ...prev, [o.id]: { ...(prev[o.id] || {}), tracking_number: e.target.value } }))} />
+
+                            <button className="shipment-btn" onClick={() => markOrderShipped(o.id)}>{o.shipment ? 'Update Shipment' : 'Mark as Shipped'}</button>
+
+                            {o.shipment && o.shipment.tracking_number && (
+                              <div style={{ marginTop: 10 }} className="muted">Shipped via {o.shipment.courier_name || '—'} • Tracking: <a href={`https://www.google.com/search?q=${encodeURIComponent(o.shipment.tracking_number)}`} target="_blank" rel="noreferrer">{o.shipment.tracking_number}</a></div>
+                            )}
                           </div>
                         </div>
                       </div>
-                      <div style={{ width: 260 }}>
-                        <div style={{ marginBottom: 8 }}>
-                          <label>Courier</label>
-                          <input type="text" value={(shipmentStates[o.id] && shipmentStates[o.id].courier_name) || ''} onChange={(e) => setShipmentStates(prev => ({ ...prev, [o.id]: { ...(prev[o.id] || {}), courier_name: e.target.value } }))} />
-                        </div>
-                        <div style={{ marginBottom: 8 }}>
-                          <label>Tracking #</label>
-                          <input type="text" value={(shipmentStates[o.id] && shipmentStates[o.id].tracking_number) || ''} onChange={(e) => setShipmentStates(prev => ({ ...prev, [o.id]: { ...(prev[o.id] || {}), tracking_number: e.target.value } }))} />
-                        </div>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button className="btn btn-primary" onClick={() => markOrderShipped(o.id)}>{o.shipment ? 'Update Shipment' : 'Mark as Shipped'}</button>
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>

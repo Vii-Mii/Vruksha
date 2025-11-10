@@ -88,6 +88,47 @@ export const AuthProvider = ({ children }) => {
     })()
   }
 
+  const updateUserProfile = (updates) => {
+    // Attempt server-side persist if token available
+    const token = localStorage.getItem('token')
+    if (token) {
+      ;(async () => {
+        try {
+          const resp = await fetch('http://localhost:8000/api/users/me', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify(updates)
+          })
+          const data = await resp.json()
+          if (resp.ok && data && data.user) {
+            setUser(data.user)
+            localStorage.setItem('user', JSON.stringify(data.user))
+            return
+          }
+        } catch (err) {
+          console.error('Failed to persist profile to server:', err)
+        }
+
+        // Fallback to local update when server persist fails
+        const newUser = { ...(user || {}), ...updates }
+        setUser(newUser)
+        try {
+          localStorage.setItem('user', JSON.stringify(newUser))
+        } catch (err) {
+          console.error('Failed to save updated user profile to localStorage', err)
+        }
+      })()
+    } else {
+      const newUser = { ...(user || {}), ...updates }
+      setUser(newUser)
+      try {
+        localStorage.setItem('user', JSON.stringify(newUser))
+      } catch (err) {
+        console.error('Failed to save updated user profile to localStorage', err)
+      }
+    }
+  }
+
   const logout = () => {
     setUser(null)
     setToken(null)
@@ -113,6 +154,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    updateUserProfile,
     logout,
     isAuthenticated,
     getAuthHeader

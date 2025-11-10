@@ -110,6 +110,17 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class UserProfile(Base):
+    __tablename__ = 'user_profiles'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), unique=True, index=True)
+    address = Column(Text, nullable=True)
+    city = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    pincode = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class Cart(Base):
     __tablename__ = "carts"
     id = Column(Integer, primary_key=True, index=True)
@@ -246,6 +257,10 @@ class UserResponse(BaseModel):
     is_active: bool
     is_admin: bool
     created_at: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    pincode: Optional[str] = None
 
 
 # Authentication utilities
@@ -405,7 +420,11 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
             "phone": db_user.phone,
             "is_active": db_user.is_active,
             "is_admin": getattr(db_user, 'is_admin', False),
-            "created_at": db_user.created_at.isoformat() if db_user.created_at else None
+            "created_at": db_user.created_at.isoformat() if db_user.created_at else None,
+            "address": None,
+            "city": None,
+            "state": None,
+            "pincode": None
         }
     }
 
@@ -435,22 +454,89 @@ def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
             "phone": user.phone,
             "is_active": user.is_active,
             "is_admin": getattr(user, 'is_admin', False),
-            "created_at": user.created_at.isoformat() if user.created_at else None
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "address": None,
+            "city": None,
+            "state": None,
+            "pincode": None
         }
     }
 
 
 @app.get("/api/auth/me", response_model=UserResponse)
 def get_current_user_info(current_user: User = Depends(get_current_user)):
-    return UserResponse(
-        id=current_user.id,
-        name=current_user.name,
-        email=current_user.email,
-        phone=current_user.phone,
-        is_active=current_user.is_active,
-        is_admin=getattr(current_user, 'is_admin', False),
-        created_at=current_user.created_at.isoformat() if current_user.created_at else None
-    )
+    # Attach profile if present
+    db = SessionLocal()
+    try:
+        profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+        return UserResponse(
+            id=current_user.id,
+            name=current_user.name,
+            email=current_user.email,
+            phone=current_user.phone,
+            is_active=current_user.is_active,
+            is_admin=getattr(current_user, 'is_admin', False),
+            created_at=current_user.created_at.isoformat() if current_user.created_at else None,
+            address=profile.address if profile else None,
+            city=profile.city if profile else None,
+            state=profile.state if profile else None,
+            pincode=profile.pincode if profile else None
+        )
+    finally:
+        db.close()
+
+
+@app.put('/api/users/me', response_model=dict)
+def update_my_profile(payload: dict, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Update current user's profile (name, phone, address, city, state, pincode).
+    This persists to users table (name/phone) and user_profiles table for address fields.
+    """
+    name = payload.get('name')
+    phone = payload.get('phone')
+    address = payload.get('address')
+    city = payload.get('city')
+    state = payload.get('state')
+    pincode = payload.get('pincode')
+
+    # Update user fields
+    if name is not None:
+        current_user.name = name
+    if phone is not None:
+        current_user.phone = phone
+
+    # Update or create profile
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile:
+        profile = UserProfile(user_id=current_user.id, address=address, city=city, state=state, pincode=pincode)
+        db.add(profile)
+    else:
+        if address is not None:
+            profile.address = address
+        if city is not None:
+            profile.city = city
+        if state is not None:
+            profile.state = state
+        if pincode is not None:
+            profile.pincode = pincode
+
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    # return combined user object that the frontend expects
+    user_data = {
+        'id': current_user.id,
+        'name': current_user.name,
+        'email': current_user.email,
+        'phone': current_user.phone,
+        'is_active': current_user.is_active,
+        'is_admin': getattr(current_user, 'is_admin', False),
+        'created_at': current_user.created_at.isoformat() if current_user.created_at else None,
+        'address': profile.address if profile else None,
+        'city': profile.city if profile else None,
+        'state': profile.state if profile else None,
+        'pincode': profile.pincode if profile else None
+    }
+    return {'user': user_data}
 
 # Products
 @app.post("/api/products")

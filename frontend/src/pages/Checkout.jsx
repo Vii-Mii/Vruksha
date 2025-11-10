@@ -32,6 +32,7 @@ const Checkout = () => {
 
   const { isAuthenticated, loading: authLoading } = useAuth()
   const location = useLocation()
+  const { user } = useAuth()
   useEffect(() => {
     // Wait for auth initialization to complete before deciding to redirect.
     if (!authLoading && !isAuthenticated()) {
@@ -39,6 +40,21 @@ const Checkout = () => {
       navigate('/login', { state: { next: location.pathname } })
     }
   }, [authLoading, isAuthenticated, navigate, location])
+
+  // Prefill from user profile if available (after auth finished loading)
+  useEffect(() => {
+    if (!authLoading && user) {
+      setFormData(prev => ({
+        ...prev,
+        customer_name: user.name || prev.customer_name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        address: user.address || prev.address,
+        city: user.city || prev.city,
+        pincode: user.pincode || prev.pincode
+      }))
+    }
+  }, [authLoading, user])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

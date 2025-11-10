@@ -1,9 +1,19 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './Profile.css'
 import { useAuth } from '../contexts/AuthContext'
 
 const Profile = () => {
-  const { user } = useAuth()
+  const { user, updateUserProfile } = useAuth()
+  const [editing, setEditing] = useState(false)
+
+  const [form, setForm] = useState({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    address: user?.address || '',
+    city: user?.city || '',
+    state: user?.state || '',
+    pincode: user?.pincode || ''
+  })
 
   if (!user) {
     return (
@@ -15,6 +25,13 @@ const Profile = () => {
         </div>
       </div>
     )
+  }
+
+  const handleSave = (e) => {
+    e.preventDefault()
+    updateUserProfile(form)
+    setEditing(false)
+    alert('Profile updated locally. These values will prefill checkout.')
   }
 
   return (
@@ -35,18 +52,66 @@ const Profile = () => {
           </div>
 
           <div className="profile-body">
-            <div className="profile-row">
-              <div className="label">Phone</div>
-              <div className="value">{user.phone || '-'}</div>
-            </div>
-            <div className="profile-row">
-              <div className="label">Account Created</div>
-              <div className="value">{new Date(user.created_at || user.createdAt || Date.now()).toLocaleDateString()}</div>
-            </div>
-
-            <div className="profile-actions">
-              <button className="btn btn-primary">Edit Profile</button>
-            </div>
+            {!editing ? (
+              <>
+                <div className="profile-row">
+                  <div className="label">Phone</div>
+                  <div className="value">{user.phone || '-'}</div>
+                </div>
+                <div className="profile-row">
+                  <div className="label">Address</div>
+                  <div className="value">{user.address || '-'}</div>
+                </div>
+                <div className="profile-row">
+                  <div className="label">City</div>
+                  <div className="value">{user.city || '-'}</div>
+                </div>
+                <div className="profile-row">
+                  <div className="label">State</div>
+                  <div className="value">{user.state || '-'}</div>
+                </div>
+                <div className="profile-row">
+                  <div className="label">Pincode</div>
+                  <div className="value">{user.pincode || '-'}</div>
+                </div>
+                <div className="profile-actions">
+                  <button className="btn btn-primary" onClick={() => setEditing(true)}>Edit Profile</button>
+                </div>
+              </>
+            ) : (
+              <form onSubmit={handleSave} className="profile-form">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Address</label>
+                  <textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} rows={3} />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>City</label>
+                    <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>State</label>
+                    <input value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
+                  </div>
+                  <div className="form-group">
+                    <label>Pincode</label>
+                    <input value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} />
+                  </div>
+                </div>
+                <div className="profile-actions">
+                  <button className="btn btn-primary" type="submit">Save</button>
+                  <button className="btn btn-ghost" type="button" onClick={() => setEditing(false)}>Cancel</button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>

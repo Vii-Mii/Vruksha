@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { api, adminApi } from '../utils/api'
+import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import './Admin.css'
 
 const Admin = () => {
+  const { user, loading } = useAuth()
+  const navigate = useNavigate()
+    const [adminCheckCompleted, setAdminCheckCompleted] = useState(false)
   const [activeTab, setActiveTab] = useState('clothing')
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [productsList, setProductsList] = useState([])
   const [editingProduct, setEditingProduct] = useState(null)
   const [ordersList, setOrdersList] = useState([])
+  const [usersList, setUsersList] = useState([])
   const [shipmentStates, setShipmentStates] = useState({})
 
   const [clothingForm, setClothingForm] = useState({
@@ -87,9 +93,67 @@ const Admin = () => {
       fetchProductsForTab(activeTab)
     } else if (activeTab === 'orders') {
       fetchOrdersList()
+    } else if (activeTab === 'users') {
+      fetchUsersList()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab])
+
+  // On mount, ensure the current user is admin before allowing access to admin UI.
+  useEffect(() => {
+    let cancelled = false
+
+    const hasAdminFlag = (u) => {
+      if (!u) return false
+      const v = u.is_admin
+      return v === true || v === 1 || v === '1' || v === 'true'
+    }
+
+    const verify = async () => {
+      // wait for auth provider to finish initial load
+      if (loading) return
+
+      // build effective user from context or localStorage
+      let effectiveUser = user
+      if (!effectiveUser) {
+        try {
+          const s = localStorage.getItem('user')
+          if (s) effectiveUser = JSON.parse(s)
+        } catch (err) {
+          effectiveUser = null
+        }
+      }
+
+      if (hasAdminFlag(effectiveUser)) {
+        if (!cancelled) setAdminCheckCompleted(true)
+        return
+      }
+
+      const token = localStorage.getItem('token')
+      if (token) {
+        try {
+          const resp = await fetch('http://localhost:8000/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+          if (resp.ok) {
+            const data = await resp.json()
+            localStorage.setItem('user', JSON.stringify(data))
+            if (hasAdminFlag(data)) {
+              if (!cancelled) setAdminCheckCompleted(true)
+              return
+            }
+          }
+        } catch (err) {
+          console.error('Admin page: failed to verify /api/auth/me', err)
+        }
+      }
+
+      // Not an admin — redirect to home
+      if (!cancelled) {
+        navigate('/')
+      }
+    }
+
+    verify()
+    return () => { cancelled = true }
+  }, [loading, user])
 
   const fetchProductsForTab = async (tab) => {
     try {
@@ -173,6 +237,38 @@ const Admin = () => {
     } catch (err) {
       console.error('Failed to fetch orders:', err)
       showMessage('Failed to fetch orders', true)
+    }
+  }
+
+  const fetchUsersList = async () => {
+    try {
+      const data = await adminApi.listUsers()
+      setUsersList(data)
+    } catch (err) {
+      console.error('Failed to fetch users:', err)
+      showMessage('Failed to fetch users', true)
+    }
+  }
+
+  const promoteUser = async (userId) => {
+    try {
+      await adminApi.promoteUser(userId)
+      showMessage('User promoted to admin')
+      fetchUsersList()
+    } catch (err) {
+      console.error('Failed to promote user:', err)
+      showMessage('Failed to promote user', true)
+    }
+  }
+
+  const demoteUser = async (userId) => {
+    try {
+      await adminApi.demoteUser(userId)
+      showMessage('User demoted from admin')
+      fetchUsersList()
+    } catch (err) {
+      console.error('Failed to demote user:', err)
+      showMessage('Failed to demote user', true)
     }
   }
 
@@ -423,6 +519,12 @@ const Admin = () => {
             onClick={() => setActiveTab('orders')}
           >
             Orders
+          </button>
+          <button
+            className={`admin-tab ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            Users
           </button>
         </div>
 
@@ -816,6 +918,31 @@ const Admin = () => {
                           <button className="btn btn-primary" onClick={() => markOrderShipped(o.id)}>{o.shipment ? 'Update Shipment' : 'Mark as Shipped'}</button>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {activeTab === 'users' && (
+            <div className="admin-section">
+              <h2>Users</h2>
+              <div style={{ marginBottom: 16 }}>
+                <button className="btn btn-secondary" onClick={fetchUsersList}>Refresh Users</button>
+              </div>
+              <div className="users-list">
+                {usersList.map(u => (
+                  <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', padding: 12, borderBottom: '1px solid #f5f5f5' }}>
+                    <div>
+                      <strong>{u.name}</strong>
+                      <div className="muted">{u.email}  {u.phone}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {u.is_admin ? (
+                        <button className="btn btn-danger" onClick={() => demoteUser(u.id)}>Demote</button>
+                      ) : (
+                        <button className="btn btn-primary" onClick={() => promoteUser(u.id)}>Promote</button>
+                      )}
                     </div>
                   </div>
                 ))}

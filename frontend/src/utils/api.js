@@ -84,19 +84,47 @@ export const api = {
 // Admin/order related APIs
 export const adminApi = {
   listOrders: async () => {
-    const response = await axios.get(`${API_BASE_URL}/admin/orders`)
+    const token = localStorage.getItem('token')
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const response = await axios.get(`${API_BASE_URL}/admin/orders`, { headers })
     return response.data
   },
 
   createShipment: async (payload) => {
-    const response = await axios.post(`${API_BASE_URL}/admin/shipments`, payload)
+    const token = localStorage.getItem('token')
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const response = await axios.post(`${API_BASE_URL}/admin/shipments`, payload, { headers })
     return response.data
   },
 
   listShipments: async () => {
-    const response = await axios.get(`${API_BASE_URL}/admin/shipments`)
+    const token = localStorage.getItem('token')
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const response = await axios.get(`${API_BASE_URL}/admin/shipments`, { headers })
     return response.data
   }
+}
+
+// Admin user management
+adminApi.listUsers = async () => {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.get(`${API_BASE_URL}/admin/users`, { headers })
+  return response.data
+}
+
+adminApi.promoteUser = async (userId) => {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.post(`${API_BASE_URL}/admin/users/${userId}/promote`, null, { headers })
+  return response.data
+}
+
+adminApi.demoteUser = async (userId) => {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.post(`${API_BASE_URL}/admin/users/${userId}/demote`, null, { headers })
+  return response.data
 }
 
 // Cart endpoints

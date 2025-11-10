@@ -22,17 +22,49 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem('token')
     const storedUser = localStorage.getItem('user')
     
-    if (storedToken && storedUser) {
-      try {
-        setToken(storedToken)
-        setUser(JSON.parse(storedUser))
-      } catch (error) {
-        console.error('Error parsing stored user data:', error)
-        logout()
+    const init = async () => {
+      if (storedToken) {
+        // try to refresh user from server to ensure we have latest claims (is_admin etc.)
+        try {
+          const resp = await fetch('http://localhost:8000/api/auth/me', {
+            headers: { Authorization: `Bearer ${storedToken}` }
+          })
+          if (resp.ok) {
+            const data = await resp.json()
+            setToken(storedToken)
+            setUser(data)
+            localStorage.setItem('token', storedToken)
+            localStorage.setItem('user', JSON.stringify(data))
+          } else {
+            // token invalid or expired
+            console.warn('Stored token invalid, clearing auth')
+            logout()
+          }
+        } catch (err) {
+          console.error('Failed to refresh user on startup:', err)
+          // fallback to stored user if present
+          if (storedUser) {
+            try {
+              setToken(storedToken)
+              setUser(JSON.parse(storedUser))
+            } catch (error) {
+              console.error('Error parsing stored user data:', error)
+              logout()
+            }
+          }
+        }
+      } else if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser))
+        } catch (error) {
+          console.error('Error parsing stored user data:', error)
+          logout()
+        }
       }
     }
-    
-    setLoading(false)
+
+    // Run init and only mark loading false afterwards to avoid flashes/redirects
+    init().then(() => setLoading(false)).catch(() => setLoading(false))
   }, [])
 
   const login = (userData, authToken) => {

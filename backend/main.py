@@ -106,6 +106,7 @@ class User(Base):
     phone = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -243,6 +244,7 @@ class UserResponse(BaseModel):
     email: str
     phone: str
     is_active: bool
+    is_admin: bool
     created_at: Optional[str] = None
 
 
@@ -311,6 +313,53 @@ def get_current_user(
     return user
 
 
+def get_current_admin(current_user: User = Depends(get_current_user)):
+    """Dependency to ensure the current user is an admin."""
+    if not getattr(current_user, 'is_admin', False):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return current_user
+
+
+# Admin endpoints
+@app.get('/api/admin/users', response_model=List[dict])
+def admin_list_users(admin_user: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """List all users (admin only)."""
+    users = db.query(User).order_by(User.created_at.desc()).all()
+    return [{
+        "id": u.id,
+        "name": u.name,
+        "email": u.email,
+        "phone": u.phone,
+        "is_active": u.is_active,
+        "is_admin": getattr(u, 'is_admin', False),
+        "created_at": u.created_at.isoformat() if u.created_at else None
+    } for u in users]
+
+
+@app.post('/api/admin/users/{user_id}/promote')
+def admin_promote_user(user_id: int, admin_user: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Promote a user to admin."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    user.is_admin = True
+    db.add(user)
+    db.commit()
+    return {"id": user.id, "is_admin": True}
+
+
+@app.post('/api/admin/users/{user_id}/demote')
+def admin_demote_user(user_id: int, admin_user: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    """Demote an admin to normal user."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+    user.is_admin = False
+    db.add(user)
+    db.commit()
+    return {"id": user.id, "is_admin": False}
+
+
 # API Routes
 @app.get("/")
 def read_root():
@@ -355,6 +404,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
             "email": db_user.email,
             "phone": db_user.phone,
             "is_active": db_user.is_active,
+            "is_admin": getattr(db_user, 'is_admin', False),
             "created_at": db_user.created_at.isoformat() if db_user.created_at else None
         }
     }
@@ -384,6 +434,7 @@ def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
             "email": user.email,
             "phone": user.phone,
             "is_active": user.is_active,
+            "is_admin": getattr(user, 'is_admin', False),
             "created_at": user.created_at.isoformat() if user.created_at else None
         }
     }
@@ -397,6 +448,7 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
         email=current_user.email,
         phone=current_user.phone,
         is_active=current_user.is_active,
+        is_admin=getattr(current_user, 'is_admin', False),
         created_at=current_user.created_at.isoformat() if current_user.created_at else None
     )
 
@@ -616,7 +668,7 @@ def get_all_orders(db: Session = Depends(get_db)):
 
 # Admin: list all orders with details
 @app.get("/api/admin/orders", response_model=List[dict])
-def admin_list_orders(db: Session = Depends(get_db)):
+def admin_list_orders(admin_user: User = Depends(get_current_admin), db: Session = Depends(get_db)):
     orders = db.query(Order).order_by(Order.created_at.desc()).all()
     result = []
     for o in orders:
@@ -646,7 +698,7 @@ def admin_list_orders(db: Session = Depends(get_db)):
 
 # Create shipment (mark order as shipped)
 @app.post("/api/admin/shipments")
-def create_shipment(payload: ShipmentCreate, db: Session = Depends(get_db)):
+def create_shipment(payload: ShipmentCreate, admin_user: User = Depends(get_current_admin), db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == payload.order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -662,7 +714,7 @@ def create_shipment(payload: ShipmentCreate, db: Session = Depends(get_db)):
 
 # List shipments
 @app.get("/api/admin/shipments", response_model=List[dict])
-def list_shipments(db: Session = Depends(get_db)):
+def list_shipments(admin_user: User = Depends(get_current_admin), db: Session = Depends(get_db)):
     shipments = db.query(Shipment).order_by(Shipment.shipped_at.desc()).all()
     result = []
     for s in shipments:

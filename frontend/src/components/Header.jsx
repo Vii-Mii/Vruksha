@@ -138,6 +138,18 @@ const Header = () => {
                       My Orders
                     </button>
                     <div className="user-menu-divider"></div>
+                    {user?.is_admin && (
+                      <button
+                        type="button"
+                        className="user-menu-item"
+                        onClick={() => {
+                          setIsUserMenuOpen(false)
+                          navigate('/admin')
+                        }}
+                      >
+                        Admin Panel
+                      </button>
+                    )}
                     <button className="user-menu-item logout-btn" onClick={handleLogout}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 21H5C4.45 21 4 20.55 4 20V4C4 3.45 4.45 3 5 3H9" stroke="#666" strokeWidth="1.5"/>

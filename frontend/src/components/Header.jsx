@@ -14,7 +14,8 @@ const Header = () => {
   useEffect(() => {
     const updateCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-      setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0))
+      // cartCount should reflect number of distinct items in the cart (length)
+      setCartCount(cart.length)
     }
     updateCartCount()
     window.addEventListener('storage', updateCartCount)
@@ -29,7 +30,7 @@ const Header = () => {
           const token = localStorage.getItem('token')
           const resp = await cartApi.getCart(token)
           if (resp && resp.items) {
-            setCartCount(resp.items.reduce((s, it) => s + (it.quantity || 0), 0))
+            setCartCount((resp.items || []).length)
           }
         } catch (err) {
           console.error('Failed to fetch server cart count:', err)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Auth.css'
@@ -6,12 +6,12 @@ import './Auth.css'
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useAuth()
+  const { login, user, loading } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
-  const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const handleChange = (e) => {
@@ -23,7 +23,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
+  setIsSubmitting(true)
     setError('')
 
     try {
@@ -50,9 +50,20 @@ const Login = () => {
       console.error('Login error:', error)
       setError('Network error. Please check your connection.')
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
+
+  // If already logged in, redirect away from login page
+  useEffect(() => {
+    // Wait for auth provider to finish initialization
+  if (loading) return
+    if (user) {
+      const dest = location?.state?.next || '/'
+      navigate(dest, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user])
 
   return (
     <div className="auth-page">
@@ -158,8 +169,8 @@ const Login = () => {
                 <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
               </div>
 
-              <button type="submit" className="auth-btn" disabled={loading}>
-                {loading ? (
+              <button type="submit" className="auth-btn" disabled={isSubmitting}>
+                {isSubmitting ? (
                   <div className="loading-spinner">
                     <svg width="20" height="20" viewBox="0 0 24 24">
                       <circle cx="12" cy="12" r="10" stroke="#ffffff" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="31.416" strokeDashoffset="31.416">

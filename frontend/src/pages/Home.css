@@ -1,0 +1,427 @@
+.hero {
+  background: #ffffff;
+  padding: 100px 0 80px;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.vruksha-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.vruksha-logo-wrapper {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 50%, #FFD700 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4), 0 4px 15px rgba(212, 175, 55, 0.2);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  animation: logoGlow 3s ease-in-out infinite alternate;
+}
+
+.vruksha-logo-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: linear-gradient(135deg, #D4AF37, #F4D03F, #FFD700, #F4D03F, #D4AF37);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.vruksha-logo-wrapper:hover {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5), 0 6px 20px rgba(212, 175, 55, 0.3);
+}
+
+.vruksha-logo-wrapper:hover::before {
+  opacity: 1;
+}
+
+.vruksha-logo-wrapper svg {
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.15));
+  transition: all 0.3s ease;
+}
+
+.vruksha-logo-wrapper:hover svg {
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes logoGlow {
+  0% {
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4), 0 4px 15px rgba(212, 175, 55, 0.2);
+  }
+  100% {
+    box-shadow: 0 10px 35px rgba(212, 175, 55, 0.5), 0 5px 18px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.hero-title {
+  font-size: 3.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+  font-size: 1.4rem;
+  color: #D4AF37;
+  font-weight: 500;
+  margin-bottom: 25px;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 40px;
+  line-height: 1.8;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.why-choose-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+}
+
+.why-choose-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  max-width: 1000px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+.why-choose-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px 25px;
+  text-align: center;
+  border: 2px solid #f0f0f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.why-choose-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.why-choose-card:hover {
+  border-color: #D4AF37;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.2);
+}
+
+.why-choose-card:hover::before {
+  transform: scaleX(1);
+}
+
+.why-choose-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  transition: all 0.3s ease;
+}
+
+.why-choose-card:hover .why-choose-icon-wrapper {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.why-choose-icon-wrapper svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.why-choose-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.why-choose-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.services-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #fafafa 100%);
+  position: relative;
+}
+
+.services-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.section-subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 1.05rem;
+  margin-bottom: 50px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 35px;
+  margin-top: 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-section {
+  padding: 80px 0;
+  background: white;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 50px 30px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+}
+
+.cta-content h2 {
+  font-size: 2.2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+/* Footer (minimal white + gold) */
+.site-footer {
+  background: #ffffff;
+  color: #111827;
+  padding: 28px 0 14px; /* tighter vertical spacing */
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  align-items: start;
+  padding: 12px 0 8px;
+}
+
+.footer-col h4 {
+  color: #D4AF37; /* golden heading */
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.footer-col ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-col ul li {
+  margin-bottom: 6px;
+}
+
+.footer-col a {
+  color: #6b7280; /* muted text */
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.footer-col a:hover {
+  color: #D4AF37; /* golden highlight */
+}
+
+.footer-contact .contact-line {
+  margin: 4px 0;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.footer-bottom {
+  border-top: 1px solid #f3f4f6;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.service-card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 18px 14px;
+  text-align: center;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transform: translateY(-4px);
+}
+
+.service-icon-wrapper {
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, #F4D03F 0%, #FFD700 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-icon-wrapper svg {
+  width: 28px;
+  height: 28px;
+}
+
+.service-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.service-description {
+  color: #666;
+  margin-bottom: 12px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.service-link {
+  color: #D4AF37;
+  font-weight: 600;
+  font-size: 0.86rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 0 40px;
+  }
+
+  .vruksha-logo svg {
+    width: 80px;
+    height: 80px;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+  }
+  
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 40px;
+  }
+
+  .service-card {
+    padding: 35px 25px;
+  }
+
+  .service-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 20px;
+  }
+
+  .service-name {
+    font-size: 1.2rem;
+  }
+
+  .why-choose-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .why-choose-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .why-choose-card {
+    padding: 25px 20px;
+  }
+}
+

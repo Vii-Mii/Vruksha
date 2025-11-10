@@ -1,0 +1,120 @@
+/* Profile & Orders shared styles */
+.profile-page {
+  min-height: calc(100vh - 80px);
+  padding: 40px 0;
+  background: #ffffff;
+}
+
+.profile-card {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+.profile-header {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 22px 26px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.profile-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F4D03F 0%, #FFD700 100%);
+}
+
+.profile-info h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.muted {
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.profile-body {
+  padding: 20px 26px 28px;
+}
+
+.profile-row {
+  display: flex;
+  gap: 18px;
+  padding: 12px 0;
+  border-bottom: 1px dashed #f3f4f6;
+  align-items: center;
+}
+
+.profile-row .label {
+  width: 150px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.profile-row .value {
+  color: #111827;
+}
+
+.profile-actions {
+  margin-top: 18px;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff7e6;
+  border: 1px solid rgba(212,175,55,0.14);
+}
+
+.order-id {
+  font-weight: 700;
+}
+
+.order-date {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.order-total {
+  font-weight: 700;
+  color: #111827;
+}
+
+.order-items {
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    margin: 0 12px;
+  }
+
+  .profile-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile-row .label {
+    width: auto;
+  }
+}

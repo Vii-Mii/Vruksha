@@ -1,0 +1,321 @@
+.store-page {
+  padding: 40px 0 80px;
+}
+
+.store-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.filters-sidebar {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  height: fit-content;
+  position: sticky;
+  top: 90px;
+}
+
+.filters-sidebar h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.filter-group {
+  margin-bottom: 25px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.products-section {
+  min-height: 400px;
+}
+
+.products-header {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* Compact minimal design for clothing store to show more products */
+.clothing-store-page .products-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.clothing-store-page .product-card {
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+.clothing-store-page .product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+}
+
+.clothing-store-page .product-image {
+  height: 180px;
+}
+
+.clothing-store-page .product-info {
+  padding: 12px;
+}
+
+.clothing-store-page .product-info h3 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.clothing-store-page .product-description {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* compatibility for newer browsers */
+.clothing-store-page .product-description {
+  line-clamp: 2;
+}
+
+.toys-store-page .product-description,
+.pooja-page .product-description {
+  line-clamp: 2;
+}
+
+.clothing-store-page .product-footer {
+  padding: 10px 12px 14px;
+}
+
+.clothing-store-page .price {
+  font-weight: 700;
+  color: #111;
+}
+
+/* Gold pill price for better aesthetics */
+.clothing-store-page .price,
+.toys-store-page .price,
+.pooja-page .product-footer .price {
+  font-weight: 800;
+  color: #5a3811; /* dark warm tone for contrast */
+  background: linear-gradient(90deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06));
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(212,175,55,0.06);
+  font-size: 0.98rem;
+  display: inline-block;
+  min-width: 72px;
+  text-align: center;
+}
+
+.clothing-store-page .product-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Slightly smaller currency symbol if present (best-effort) */
+.clothing-store-page .price::first-letter,
+.toys-store-page .price::first-letter,
+.pooja-page .product-footer .price::first-letter {
+  font-size: 0.85em;
+  margin-right: 2px;
+}
+
+.clothing-store-page .btn-primary {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+/* Apply same compact card styles to toys store */
+.toys-store-page .products-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.toys-store-page .product-card,
+.pooja-page .product-card {
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+.toys-store-page .product-card:hover,
+.pooja-page .product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+}
+
+.toys-store-page .product-image,
+.pooja-page .product-image {
+  height: 180px;
+}
+
+.toys-store-page .product-info,
+.pooja-page .product-info {
+  padding: 12px;
+}
+
+.toys-store-page .product-info h3,
+.pooja-page .product-info h3 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.toys-store-page .product-description,
+.pooja-page .product-description {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.toys-store-page .product-description,
+.pooja-page .product-description {
+  line-clamp: 2;
+}
+
+.toys-store-page .product-footer,
+.pooja-page .product-footer {
+  padding: 10px 12px 14px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.product-link {
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-image {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+.product-info {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-info h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.product-category {
+  font-size: 0.85rem;
+  color: #D4AF37;
+  text-transform: capitalize;
+  margin-bottom: 10px;
+}
+
+.product-description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.product-meta {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.product-footer {
+  padding: 0 20px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.no-products {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+@media (max-width: 968px) {
+  .store-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-sidebar {
+    position: static;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1400px) {
+  .clothing-store-page .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+

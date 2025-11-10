@@ -1,0 +1,1390 @@
+.service-page {
+  padding: 40px 0 80px;
+  min-height: calc(100vh - 70px);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.services-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.service-item {
+  padding: 30px;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.service-header h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+}
+
+.price {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.service-description {
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.documents {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* Online Services Specific Styles */
+.online-service-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.service-features {
+  margin: 20px 0;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.features-list li {
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.checkmark {
+  color: #D4AF37;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-right: 10px;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* Catering Page */
+.catering-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.info-section {
+  margin-bottom: 40px;
+}
+
+.info-section h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.event-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.event-type-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.event-type-card:hover {
+  border-color: #D4AF37;
+  background: #fff;
+}
+
+.event-type-card h3 {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.menu-categories {
+  display: grid;
+  gap: 20px;
+}
+
+.menu-category {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+}
+
+.menu-category h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.menu-category p {
+  color: #666;
+  margin: 0;
+}
+
+.quote-form-section {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+.quote-form-section h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.quote-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Booking Section */
+.booking-section {
+  max-width: 800px;
+  margin: 60px auto 0;
+  background: #f9f9f9;
+  padding: 40px;
+  border-radius: 12px;
+}
+
+.booking-section h2 {
+  margin-bottom: 30px;
+  color: #333;
+  text-align: center;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Flower Decoration */
+.flower-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.decoration-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.decoration-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+}
+
+.decoration-card h3 {
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.decoration-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.material-options {
+  display: grid;
+  gap: 15px;
+}
+
+.material-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.material-card:hover {
+  border-color: #D4AF37;
+  background: #fff;
+}
+
+.material-card h3 {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.gallery-placeholder {
+  margin-top: 20px;
+}
+
+.gallery-placeholder > p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.gallery-item {
+  aspect-ratio: 1;
+  background: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.gallery-placeholder-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+
+.inquiry-form-section {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+.inquiry-form-section h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.inquiry-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tuition Services */
+.tuition-content {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.classes-list,
+.boards-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.class-card,
+.board-card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.class-card:hover,
+.board-card:hover {
+  border-color: #D4AF37;
+  background: #fff;
+}
+
+.class-card h3,
+.board-card h3 {
+  color: #333;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.subjects-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.subject-tag {
+  background: #f9f9f9;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.fee-structure {
+  margin-top: 20px;
+}
+
+.fee-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.fee-amount {
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.enrollment-section {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+.enrollment-section h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.enrollment-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.subjects-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.subject-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.subject-checkbox:hover {
+  background: #f0f0f0;
+}
+
+.subject-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.subject-checkbox span {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* General Minimalistic Styles for All Service Pages */
+.service-page {
+  background: #fafafa;
+}
+
+.service-intro,
+.contact-intro {
+  max-width: 800px;
+  margin: 0 auto 50px;
+  text-align: center;
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+}
+
+.service-intro p,
+.contact-intro p {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.services-showcase-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.services-showcase-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 40px;
+}
+
+/* Catering Page Minimalistic Styles */
+.catering-page {
+  background: #fafafa;
+}
+
+.catering-intro,
+.beautician-intro {
+  max-width: 800px;
+  margin: 0 auto 50px;
+  text-align: center;
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+}
+
+.catering-intro p,
+.beautician-intro p {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.features-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.features-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.feature-icon {
+  color: #D4AF37;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.event-types-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.event-types-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.event-types-minimal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.event-type-minimal {
+  padding: 12px 24px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.event-type-minimal:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.menu-showcase {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.menu-showcase h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.menu-card {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.menu-card h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.menu-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-card li {
+  padding: 8px 0;
+  color: #666;
+  font-size: 0.95rem;
+  position: relative;
+  padding-left: 20px;
+}
+
+.menu-card li::before {
+  content: '•';
+  color: #D4AF37;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.quote-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.quote-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quote-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.quote-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.quote-form-minimal {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Beautician Page Minimalistic Styles */
+.beautician-page {
+  background: #fafafa;
+}
+
+.services-showcase {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.services-showcase h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 40px;
+}
+
+.services-grid-minimal {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.service-card-minimal {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.service-card-minimal:hover {
+  border-color: #D4AF37;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+}
+
+.service-header-minimal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.service-header-minimal h3 {
+  font-size: 1.4rem;
+  color: #333;
+  margin: 0;
+}
+
+.service-card-minimal .service-description {
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.service-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.service-features-list li {
+  padding: 6px 0;
+  color: #555;
+  font-size: 0.9rem;
+  position: relative;
+  padding-left: 20px;
+}
+
+.service-features-list li::before {
+  content: '✓';
+  color: #D4AF37;
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+}
+
+.booking-section-minimal {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.booking-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.booking-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.booking-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.booking-form-minimal {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Online Services Page */
+.online-services-page {
+  background: #fafafa;
+}
+
+/* Flower Decoration Page */
+.flower-page {
+  background: #fafafa;
+}
+
+.decoration-types-section,
+.material-types-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.decoration-types-section h2,
+.material-types-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.decoration-types-minimal,
+.material-types-minimal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.decoration-type-minimal,
+.material-type-minimal {
+  padding: 12px 24px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.decoration-type-minimal:hover,
+.material-type-minimal:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.inquiry-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.inquiry-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.inquiry-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.inquiry-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.inquiry-form-minimal {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tuition Services Page */
+.tuition-page {
+  background: #fafafa;
+}
+
+.classes-section,
+.subjects-section,
+.fee-section {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.classes-section h2,
+.subjects-section h2,
+.fee-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.classes-boards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.classes-minimal,
+.boards-minimal {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.classes-minimal h3,
+.boards-minimal h3 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.classes-list-minimal,
+.boards-list-minimal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.class-item-minimal,
+.board-item-minimal {
+  padding: 10px 20px;
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.subjects-grid-minimal {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.subject-item-minimal {
+  padding: 12px 20px;
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.subject-item-minimal:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.fee-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.fee-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666;
+}
+
+.fee-row:last-child {
+  border-bottom: none;
+}
+
+.fee-row .fee-amount {
+  font-weight: 600;
+  color: #D4AF37;
+}
+
+.enrollment-section-minimal {
+  margin: 50px 0;
+  padding: 40px 0;
+}
+
+.enrollment-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.enrollment-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.enrollment-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.enrollment-form-minimal {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Store Pages */
+.store-intro {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  text-align: center;
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+}
+
+.store-intro p {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.clothing-store-page,
+.toys-store-page {
+  background: #fafafa;
+}
+
+/* About Page */
+.about-page {
+  background: #fafafa;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.about-hero .vruksha-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.about-hero .vruksha-logo svg {
+  filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.2));
+}
+
+.about-intro {
+  max-width: 800px;
+  margin: 0 auto 50px;
+  text-align: center;
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+}
+
+.about-intro p {
+  font-size: 1.2rem;
+  color: #666;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.about-content {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.about-section {
+  margin-bottom: 40px;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.about-section h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.about-section p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.section-description {
+  font-size: 1.05rem;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.value-item {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+}
+
+.value-item h4 {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.value-item p {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.services-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.services-overview .service-item {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  border-left: 4px solid #D4AF37;
+  transition: all 0.3s ease;
+}
+
+.services-overview .service-item:hover {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.services-overview .service-item h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.services-overview .service-item p {
+  color: #666;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.features-grid-about {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.feature-item-about {
+  display: flex;
+  gap: 15px;
+  padding: 25px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.feature-item-about:hover {
+  border-color: #D4AF37;
+  background: white;
+}
+
+.feature-item-about .feature-icon {
+  color: #D4AF37;
+  font-weight: 700;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.feature-item-about h4 {
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.feature-item-about p {
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.about-cta {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+/* Contact Page */
+.contact-page {
+  background: #fafafa;
+}
+
+.contact-content {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-info .info-card {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  border-left: 4px solid #D4AF37;
+}
+
+.contact-info .info-card h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.contact-info .info-card p {
+  color: #666;
+  margin: 5px 0;
+  line-height: 1.6;
+}
+
+.contact-form-section {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form-section h2 {
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 968px) {
+  .catering-content,
+  .flower-content,
+  .tuition-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    padding: 30px 20px;
+  }
+  
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .subjects-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid-minimal {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-container,
+  .booking-container,
+  .inquiry-container,
+  .enrollment-container {
+    padding: 30px 20px;
+  }
+
+  .contact-content {
+    grid-template-columns: 1fr;
+  }
+
+  .classes-boards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .subjects-grid-minimal {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .why-choose-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid-about {
+    grid-template-columns: 1fr;
+  }
+
+  .about-cta {
+    flex-direction: column;
+  }
+
+  .about-cta .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+

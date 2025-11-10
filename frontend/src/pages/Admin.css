@@ -1,0 +1,359 @@
+.admin-page {
+  padding: 40px 0 80px;
+  min-height: calc(100vh - 70px);
+  background: #fafafa;
+}
+
+.admin-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.admin-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.message {
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e0e0e0;
+  justify-content: center;
+}
+
+.admin-tab {
+  padding: 15px 30px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  margin-bottom: -2px;
+}
+
+.admin-tab:hover {
+  color: #D4AF37;
+}
+
+.admin-tab.active {
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+}
+
+.admin-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.admin-section {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-section h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #D4AF37;
+}
+
+.admin-products-list h3 {
+  font-size: 1.1rem;
+  margin: 0 0 12px 0;
+  color: #333;
+}
+
+.admin-product-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.admin-product-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-product-meta img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.admin-product-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #D4AF37;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.orders-list {
+  margin-top: 8px;
+}
+
+.order-row label {
+  display: block;
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.order-row input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Image Upload Styles */
+.image-upload-container {
+  position: relative;
+  width: 100%;
+}
+
+.image-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.image-upload-label {
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  border: 3px dashed #D4AF37;
+  border-radius: 12px;
+  background: #fefefe;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-upload-label:hover {
+  border-color: #B8941F;
+  background: #fffbf5;
+  transform: scale(1.02);
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
+  padding: 20px;
+}
+
+.image-placeholder svg {
+  margin-bottom: 15px;
+  opacity: 0.8;
+}
+
+.image-placeholder span {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #D4AF37;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.image-placeholder small {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(212, 175, 55, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.image-upload-label:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-upload-label:hover .image-preview {
+  transform: scale(1.05);
+}
+
+/* Form Group Enhancements */
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+@media (max-width: 768px) {
+  .admin-title {
+    font-size: 2rem;
+  }
+
+  .admin-tabs {
+    flex-wrap: wrap;
+  }
+
+  .admin-tab {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+
+  .admin-section {
+    padding: 30px 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .image-upload-label {
+    min-height: 180px;
+  }
+
+  .image-preview-container {
+    height: 180px;
+  }
+
+  .image-placeholder {
+    height: 180px;
+    padding: 15px;
+  }
+
+  .image-placeholder span {
+    font-size: 1rem;
+  }
+}
+
+/* Shipped badge */
+.shipped-badge {
+  background: linear-gradient(90deg, #D4AF37, #B8941F);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+

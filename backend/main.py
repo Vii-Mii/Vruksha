@@ -855,6 +855,16 @@ def create_order(order: OrderCreate, current_user: User = Depends(get_current_us
         db.add(db_order)
         db.commit()
         db.refresh(db_order)
+        # Clear the user's persisted cart now that the order is placed
+        try:
+            cart = db.query(Cart).filter(Cart.user_id == current_user.id).first()
+            if cart:
+                cart.items = '[]'
+                db.add(cart)
+                db.commit()
+        except Exception as e:
+            # Non-fatal: log and continue
+            print('Warning: failed to clear cart for user after order:', str(e))
         # Notify admins about new order (non-fatal)
         try:
             subject = f"New order placed: {db_order.id} by {db_order.customer_name}"

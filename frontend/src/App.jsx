@@ -10,6 +10,7 @@ import FlowerDecoration from './pages/FlowerDecoration'
 import TuitionServices from './pages/TuitionServices'
 import ClothingStore from './pages/ClothingStore'
 import ToysStore from './pages/ToysStore'
+import ProductDetail from './pages/ProductDetail'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Cart from './pages/Cart'
@@ -43,6 +44,7 @@ function App() {
               <Route path="/tuition-services" element={<TuitionServices />} />
               <Route path="/clothing-store" element={<ClothingStore />} />
               <Route path="/toys-store" element={<ToysStore />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/cart" element={<Cart />} />

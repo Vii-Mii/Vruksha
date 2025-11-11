@@ -1,0 +1,92 @@
+/* Minimalist product detail styling - white + gold accents */
+.product-detail-page { padding: 36px 0 80px; color: #333; }
+.breadcrumb { font-size: 13px; color: #666; margin-bottom: 12px; display:flex; gap:8px; align-items:center }
+.breadcrumb a { color: #666; text-decoration:none }
+
+.pd-grid { display: grid; grid-template-columns: 1fr 420px; gap: 32px; align-items: start; }
+
+.pd-images .main-image { background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; height: 420px; overflow: hidden; display:flex; align-items:center; justify-content:center }
+.pd-images .main-image { cursor: zoom-in }
+.pd-images .main-image img { width:100%; height:100%; object-fit:cover; transition: transform 0.25s ease }
+.pd-images .main-image:hover img { transform: scale(1.06) }
+.pd-images .thumbs { display:flex; gap:8px; margin-top:10px }
+.pd-images .thumb { border:1px solid #eee; background:white; padding:2px; border-radius:6px; width:64px; height:64px; overflow:hidden }
+.pd-images .thumb img { width:100%; height:100%; object-fit:cover }
+.pd-images .thumb.active { box-shadow: 0 8px 20px rgba(0,0,0,0.06); border-color: rgba(212,175,55,0.18) }
+
+.pd-info { background: #fff; border-radius: 10px; padding: 18px; border: 1px solid #E5E5E5 }
+.pd-title { font-size: 18px; margin: 0 0 8px; font-weight: 600 }
+.pd-topline { display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px }
+.rating { display:flex; align-items:center; gap:8px }
+.stars { display:flex; gap:4px }
+.stars svg { display:block }
+.rcount { color:#666; font-size:13px }
+.pd-price { font-size:20px; font-weight:700; color:#5a3811; background: linear-gradient(90deg, rgba(212,175,55,0.08), rgba(212,175,55,0.04)); padding:6px 10px; border-radius:999px }
+
+.pd-tags { display:flex; gap:8px; margin-bottom:10px }
+.tag { font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid rgba(212,175,55,0.4); color:#5a3811 }
+
+.pd-desc { color:#555; font-size:14px; line-height:1.5; max-height:3.6em; overflow:hidden }
+
+.pd-actions { display:flex; gap:12px; align-items:center; margin:14px 0 }
+.qty { display:flex; align-items:center; border:1px solid #eee; border-radius:8px; overflow:hidden }
+.qty-btn { width:34px; height:34px; border:none; background:#fafafa; cursor:pointer; font-weight:700 }
+.qty-val { padding:6px 10px; min-width:36px; text-align:center }
+.add-btn { background: #D4AF37; color: white; border: none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600 }
+.actions-right { display:flex; align-items:center; gap:10px }
+.icon-row { display:flex; gap:8px }
+.icon-btn { width:34px; height:34px; border-radius:8px; border:1px solid #eee; background:white; display:inline-flex; align-items:center; justify-content:center; cursor:pointer }
+.icon-btn svg { display:block }
+
+.icon-btn:focus { outline: 2px solid rgba(0,0,0,0.08); outline-offset: 2px }
+
+.pd-tabs { display:flex; gap:8px; margin-top:18px }
+.tab { padding:8px 12px; font-size:13px; border-bottom:2px solid transparent; cursor:pointer; color:#666 }
+.tab.active { border-color:#D4AF37; color:#333; font-weight:600 }
+.tab-content { margin-top:14px }
+.tab-panel { background:#fff; border:1px solid #eee; padding:12px; border-radius:8px }
+
+.reviews-list { display:flex; flex-direction:column; gap:10px }
+.review-card { border:1px solid #EEE; padding:10px; border-radius:8px; display:flex; flex-direction:column; gap:8px; align-items:flex-start }
+.rev-head { display:flex; gap:10px; align-items:flex-start }
+.rev-avatar { width:36px; height:36px; border-radius:50%; background:#D4AF37; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; flex:0 0 36px }
+.rev-meta { font-size:13px; color:#666; display:flex; flex-direction:column; gap:6px }
+.rev-author-date { font-weight:600; color:#333; font-size:14px }
+.rev-stars { display:flex; gap:6px }
+.rev-body { color:#333; font-size:14px; margin-top:4px }
+.reviews-actions { display:flex; gap:8px; margin-top:8px }
+.btn-outline { padding:8px 12px; border:1px solid #D4AF37; background:transparent; color:#5a3811; border-radius:8px; cursor:pointer }
+.btn-link { background:none; border:none; color:#666; cursor:pointer }
+
+/* Inline review form */
+.review-form { display:flex; flex-direction:column; gap:8px; margin-top:8px }
+.review-row { display:flex; gap:8px }
+.review-row textarea { flex:1; padding:8px; border-radius:6px; border:1px solid #eee; resize:vertical }
+.star-picker { display:flex; gap:6px; align-items:center }
+.star-btn { background:transparent; border:none; padding:4px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; border-radius:6px }
+.star-btn.active { background: linear-gradient(90deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06)); box-shadow: 0 6px 14px rgba(212,175,55,0.06) }
+.rev-top { display:flex; gap:10px; align-items:center }
+.rev-author { font-weight:600; color:#333 }
+.star-btn:focus { outline: 2px solid rgba(212,175,55,0.18); outline-offset: 2px }
+.rev-head { display:flex; gap:10px; align-items:center }
+.rev-meta { display:flex; flex-direction:column; gap:6px }
+.review-actions { display:flex; gap:8px; justify-content:flex-start }
+
+.reviews-top { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px }
+.review-form-wrapper { width:100%; }
+.review-label { font-size:13px; color:#666; margin-right:8px; align-self:center }
+.rev-author-date { font-weight:600; color:#333; font-size:14px }
+.bottom-actions { margin-top:12px }
+
+/* skeletons */
+.pd-skeleton { display:grid; grid-template-columns:1fr 420px; gap:24px }
+.pd-skeleton .s-left { height:420px; background:#f6f6f6; border-radius:10px }
+.pd-skeleton .s-right .s-line { height:14px; background:#f4f4f4; border-radius:6px; margin-bottom:10px }
+.pd-skeleton .s-right .s-line.short { width:40% }
+.pd-skeleton .s-right .s-box { height:80px; background:#f4f4f4; border-radius:8px }
+
+@media (max-width: 980px) {
+  .pd-grid { grid-template-columns: 1fr; }
+  .pd-images .main-image { height: 320px }
+  .pd-skeleton { grid-template-columns: 1fr }
+}

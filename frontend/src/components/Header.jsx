@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Header.css'
 import { cartApi } from '../utils/api'
+import { ShoppingCart, User, ChevronDown, UserCheck, Box, LogOut } from 'lucide-react'
 
 const Header = () => {
   const [cartCount, setCartCount] = useState(0)
@@ -78,10 +79,8 @@ const Header = () => {
           </nav>
 
           <div className="header-actions">
-            <Link to="/cart" className="cart-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V19C17 20.1 16.1 21 15 21H9C7.9 21 7 20.1 7 19V13H17Z" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            <Link to="/cart" className="cart-icon" aria-label="View cart">
+              <ShoppingCart size={20} color="#333" />
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
             
@@ -92,15 +91,10 @@ const Header = () => {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 >
                   <div className="user-avatar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 21V19C20 16.79 18.21 15 16 15H8C5.79 15 4 16.79 4 19V21" stroke="white" strokeWidth="2"/>
-                      <circle cx="12" cy="7" r="4" stroke="white" strokeWidth="2"/>
-                    </svg>
+                    <User size={18} color="white" />
                   </div>
                   <span className="user-name">{user?.name || 'User'}</span>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 9L12 15L18 9" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <ChevronDown size={16} color="#333" />
                 </button>
                 
                 {isUserMenuOpen && (
@@ -118,10 +112,7 @@ const Header = () => {
                         navigate('/profile')
                       }}
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 21V19C20 16.79 18.21 15 16 15H8C5.79 15 4 16.79 4 19V21" stroke="#666" strokeWidth="1.5"/>
-                        <circle cx="12" cy="7" r="4" stroke="#666" strokeWidth="1.5"/>
-                      </svg>
+                      <UserCheck size={16} color="#666" />
                       My Profile
                     </button>
                     <button
@@ -132,10 +123,7 @@ const Header = () => {
                         navigate('/orders')
                       }}
                     >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="#666" strokeWidth="1.5"/>
-                        <path d="M9 9L15 15M15 9L9 15" stroke="#666" strokeWidth="1.5"/>
-                      </svg>
+                      <Box size={16} color="#666" />
                       My Orders
                     </button>
                     <div className="user-menu-divider"></div>
@@ -152,10 +140,7 @@ const Header = () => {
                       </button>
                     )}
                     <button className="user-menu-item logout-btn" onClick={handleLogout}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 21H5C4.45 21 4 20.55 4 20V4C4 3.45 4.45 3 5 3H9" stroke="#666" strokeWidth="1.5"/>
-                        <path d="M16 17L21 12L16 7M21 12H9" stroke="#666" strokeWidth="1.5"/>
-                      </svg>
+                      <LogOut size={16} color="#666" />
                       Logout
                     </button>
                   </div>

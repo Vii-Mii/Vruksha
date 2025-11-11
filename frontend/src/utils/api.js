@@ -14,6 +14,11 @@ export const api = {
     return response.data
   },
 
+  getProductReviews: async (productId) => {
+    const response = await axios.get(`${API_BASE_URL}/products/${productId}/reviews`)
+    return response.data
+  },
+
   getServices: async (category = null) => {
     const url = category ? `${API_BASE_URL}/services?category=${category}` : `${API_BASE_URL}/services`
     const response = await axios.get(url)
@@ -66,6 +71,13 @@ export const api = {
 
   createProduct: async (productData) => {
     const response = await axios.post(`${API_BASE_URL}/products`, productData)
+    return response.data
+  }
+
+  ,
+  createReview: async (productId, payload, token) => {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {}
+    const response = await axios.post(`${API_BASE_URL}/products/${productId}/reviews`, payload, { headers })
     return response.data
   }
 

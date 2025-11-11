@@ -149,6 +149,19 @@ class Payment(Base):
 # Ensure tables exist (call again after adding Payment)
 Base.metadata.create_all(bind=engine)
 
+# Reviews model
+class Review(Base):
+    __tablename__ = 'reviews'
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey('products.id'), index=True)
+    user_name = Column(String, nullable=True)
+    rating = Column(Integer, default=5)
+    text = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+# create any new tables (safe to run multiple times)
+Base.metadata.create_all(bind=engine)
+
 # Pydantic models
 class ProductCreate(BaseModel):
     name: str
@@ -172,6 +185,21 @@ class ProductUpdate(BaseModel):
     size: Optional[str] = None
     age_group: Optional[str] = None
     stock: Optional[int] = None
+
+
+class ReviewCreate(BaseModel):
+    user_name: Optional[str] = None
+    rating: Optional[int] = 5
+    text: Optional[str] = None
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    product_id: int
+    user_name: Optional[str]
+    rating: int
+    text: Optional[str]
+    created_at: Optional[str]
 
 class ServiceCreate(BaseModel):
     name: str
@@ -587,12 +615,37 @@ def get_product(product_id: int):
         product = db.query(Product).filter(Product.id == product_id).first()
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
+        # include images as an array (allowing multiple images in future)
+        images = [product.image_url] if product.image_url else []
         return {"id": product.id, "name": product.name, "category": product.category,
                 "subcategory": product.subcategory, "description": product.description,
-                "price": product.price, "image_url": product.image_url, "size": product.size,
+                "price": product.price, "image_url": product.image_url, "images": images, "size": product.size,
                 "age_group": product.age_group, "stock": product.stock}
     finally:
         db.close()
+
+
+# Create a review for a product
+@app.post('/api/products/{product_id}/reviews', response_model=ReviewResponse)
+def create_review(product_id: int, payload: ReviewCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_prod = db.query(Product).filter(Product.id == product_id).first()
+    if not db_prod:
+        raise HTTPException(status_code=404, detail='Product not found')
+    review = Review(product_id=product_id, user_name=payload.user_name or current_user.name or 'Anonymous', rating=payload.rating or 5, text=payload.text)
+    db.add(review)
+    db.commit()
+    db.refresh(review)
+    return ReviewResponse(id=review.id, product_id=review.product_id, user_name=review.user_name, rating=review.rating, text=review.text, created_at=review.created_at.isoformat() if review.created_at else None)
+
+
+# List reviews for a product
+@app.get('/api/products/{product_id}/reviews', response_model=List[ReviewResponse])
+def list_reviews(product_id: int, db: Session = Depends(get_db)):
+    db_prod = db.query(Product).filter(Product.id == product_id).first()
+    if not db_prod:
+        raise HTTPException(status_code=404, detail='Product not found')
+    revs = db.query(Review).filter(Review.product_id == product_id).order_by(Review.created_at.desc()).all()
+    return [ReviewResponse(id=r.id, product_id=r.product_id, user_name=r.user_name, rating=r.rating or 5, text=r.text, created_at=r.created_at.isoformat() if r.created_at else None) for r in revs]
 
 
 # Update product (admin)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import './Checkout.css'
 import { getCart, getCartTotal, clearCart } from '../utils/cart'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
@@ -19,6 +20,49 @@ const Checkout = () => {
     pincode: '',
     payment_method: 'cash'
   })
+  const [qrState, setQrState] = useState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 })
+
+  // Polling & expiry for QR modal
+  useEffect(() => {
+    if (!qrState.visible || !qrState.paymentId) return
+
+    let interval = null
+    // poll verify every 4s
+    interval = setInterval(async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const v = await api.verifyPayment(qrState.paymentId, token)
+        if (v && v.status === 'paid') {
+          clearInterval(interval)
+          setQrState(prev => ({ ...prev, status: 'paid' }))
+          sessionStorage.removeItem('pending_payment_id')
+          clearCart()
+          alert('Payment received — order placed!')
+          window.location.href = '/orders'
+        }
+      } catch (err) {
+        console.error('verify poll error', err)
+      }
+    }, 4000)
+
+    // countdown timer
+    const timer = setInterval(() => {
+      setQrState(prev => {
+        if (!prev.visible) return prev
+        if (prev.timeLeft <= 1) {
+          // expire
+          clearInterval(interval)
+          return { ...prev, timeLeft: 0, status: 'expired' }
+        }
+        return { ...prev, timeLeft: prev.timeLeft - 1 }
+      })
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+      clearInterval(timer)
+    }
+  }, [qrState.visible, qrState.paymentId])
 
   useEffect(() => {
     const cartItems = getCart()
@@ -73,36 +117,22 @@ const Checkout = () => {
 
       // If payment_method is upi, create a Razorpay QR and show it to the user
       if (formData.payment_method === 'upi') {
+        // create QR and open modal
         const createResp = await api.createRazorpayQR(orderData.total_amount, { items: cart, customer_name: formData.customer_name, email: formData.email, phone: formData.phone, address: formData.address }, token)
-        // show QR image and poll for verification
         if (createResp && createResp.image_url) {
-          // open a simple modal-like flow: replace page content with QR image
-          const paymentId = createResp.payment_id
-          // store pending payment for Orders page fallback
-          sessionStorage.setItem('pending_payment_id', paymentId)
-
-          // Replace the whole page with QR UI (simple approach)
-          document.body.innerHTML = `\n            <div style="padding:40px;font-family:sans-serif;max-width:600px;margin:0 auto;text-align:center">\n              <h2>Scan to pay (UPI)</h2>\n              <img src="${createResp.image_url}" alt="QR Code" style="max-width:100%;height:auto;"/>\n              <p>Please scan the QR with your UPI app and complete the payment. This page will auto-detect when the payment is received.</p>\n              <p id="status">Waiting for payment...</p>\n            </div>`
-
-          const poll = setInterval(async () => {
-            try {
-              const v = await api.verifyPayment(paymentId, token)
-              if (v && v.status === 'paid') {
-                clearInterval(poll)
-                sessionStorage.removeItem('pending_payment_id')
-                clearCart()
-                alert('Payment received — order placed!')
-                window.location.href = '/orders'
-              }
-            } catch (err) {
-              console.error('verify poll error', err)
-            }
-          }, 3000)
-
+          // store pending payment id for fallback
+          sessionStorage.setItem('pending_payment_id', createResp.payment_id)
+          // show modal UI
+          setQrState({
+            visible: true,
+            imageUrl: createResp.image_url,
+            paymentId: createResp.payment_id,
+            status: 'waiting',
+            timeLeft: 120
+          })
           return
-        } else {
-          throw new Error('Could not create QR: ' + JSON.stringify(createResp))
         }
+        throw new Error('Could not create QR: ' + JSON.stringify(createResp))
       }
 
       // fallback: place order without provider (cash/card handled separately)
@@ -122,7 +152,7 @@ const Checkout = () => {
     return null
   }
 
-  return (
+  return (<>
     <div className="checkout-page">
       <div className="container">
         <h1 className="page-title">Checkout</h1>
@@ -245,7 +275,46 @@ const Checkout = () => {
         </div>
       </div>
     </div>
-  )
+
+    {qrState.visible && (
+        <div className="qr-modal-backdrop">
+          <div className="qr-modal">
+            <h3>Scan to pay (UPI)</h3>
+            <div className="qr-body">
+              {qrState.imageUrl ? <img src={qrState.imageUrl} alt="QR" /> : <div className="qr-loader">Loading QR...</div>}
+              <div className="qr-meta">
+                {qrState.status === 'waiting' && <p>Waiting for payment... <strong>{Math.floor(qrState.timeLeft / 60)}:{String(qrState.timeLeft % 60).padStart(2,'0')}</strong></p>}
+                {qrState.status === 'expired' && <p className="expired">This QR has expired. Please regenerate to try again.</p>}
+                {qrState.status === 'paid' && <p className="paid">Payment received — thank you!</p>}
+              </div>
+            </div>
+            <div className="qr-actions">
+              {qrState.status === 'expired' ? (
+                <button className="btn" onClick={async () => {
+                  // regenerate
+                  try {
+                    const token = localStorage.getItem('token')
+                    const createResp = await api.createRazorpayQR((total + (total > 1000 ? 0 : 100)), { items: cart, customer_name: formData.customer_name, email: formData.email, phone: formData.phone, address: formData.address }, token)
+                    if (createResp && createResp.image_url) {
+                      setQrState({ visible: true, imageUrl: createResp.image_url, paymentId: createResp.payment_id, status: 'waiting', timeLeft: 120 })
+                      sessionStorage.setItem('pending_payment_id', createResp.payment_id)
+                    } else {
+                      alert('Could not regenerate QR. Try again.')
+                    }
+                  } catch (err) {
+                    console.error(err)
+                    alert('Error regenerating QR')
+                  }
+                }}>Regenerate QR</button>
+              ) : (
+                <button className="btn btn-secondary" onClick={() => { setQrState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 }); window.location.reload() }}>Cancel</button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+  </>)
 }
 
 export default Checkout

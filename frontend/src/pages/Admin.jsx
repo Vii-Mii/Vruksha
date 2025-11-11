@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { api, adminApi } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { User, Mail, Phone, UserCheck, UserMinus, ShieldCheck } from 'lucide-react'
 import './Admin.css'
 
 const Admin = () => {
@@ -983,16 +984,37 @@ const Admin = () => {
               </div>
               <div className="users-list">
                 {usersList.map(u => (
-                  <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', padding: 12, borderBottom: '1px solid #f5f5f5' }}>
-                    <div>
-                      <strong>{u.name}</strong>
-                      <div className="muted">{u.email}  {u.phone}</div>
+                  <div key={u.id} className="user-row">
+                    <div className="user-left">
+                      <div className="admin-avatar" aria-hidden>
+                        <User size={28} />
+                      </div>
+                      <div className="user-meta">
+                        <div className="user-name">
+                          <strong>{u.name || '—'}</strong>
+                          {u.is_admin && (
+                            <span className="admin-badge" title="Administrator" aria-hidden>
+                              <ShieldCheck size={12} />
+                            </span>
+                          )}
+                        </div>
+                        <div className="user-contact">
+                          <span className="contact-item"><Mail size={14} /> <span className="muted contact-text">{u.email || '—'}</span></span>
+                          <span className="contact-sep">•</span>
+                          <span className="contact-item"><Phone size={14} /> <span className="muted contact-text">{u.phone || '—'}</span></span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
+
+                    <div className="user-actions">
                       {u.is_admin ? (
-                        <button className="btn btn-danger" onClick={() => demoteUser(u.id)}>Demote</button>
+                        <button className="icon-btn icon-btn-danger" title="Demote user" onClick={() => demoteUser(u.id)}>
+                          <UserMinus size={16} />
+                        </button>
                       ) : (
-                        <button className="btn btn-primary" onClick={() => promoteUser(u.id)}>Promote</button>
+                        <button className="icon-btn" title="Promote to admin" onClick={() => promoteUser(u.id)}>
+                          <UserCheck size={16} />
+                        </button>
                       )}
                     </div>
                   </div>

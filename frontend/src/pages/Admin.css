@@ -206,6 +206,91 @@
   border-radius: 6px;
 }
 
+/* Users list - minimalist */
+.users-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f3f3f3;
+}
+
+.user-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #B8941F;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(181, 133, 22, 0.14);
+  color: #B8941F;
+  background: rgba(212,175,55,0.06);
+  box-shadow: 0 2px 6px rgba(212,175,55,0.06);
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name { font-size: 15px; }
+.user-contact { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.contact-item { display: inline-flex; gap: 6px; align-items: center; color: #6b7280; font-size: 13px; }
+.contact-text { color: #6b7280; }
+.contact-sep { color: #e5e7eb; margin: 0 6px; }
+
+.user-actions { display: flex; gap: 8px; }
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #ececec;
+  color: #0f172a;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  padding: 6px;
+}
+.icon-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16,24,40,0.06); }
+
+.icon-btn-danger { background: #fff7f7; border-color: #f5c6cb; color: #9b2c2c; }
+
+@media (max-width: 680px) {
+  .user-row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .user-actions { justify-content: flex-end; }
+}
+
 .admin-form {
   display: flex;
   flex-direction: column;

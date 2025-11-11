@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
+import SubmissionModal from '../components/SubmissionModal'
 import './ServicePage.css'
 
 const CateringServices = () => {
@@ -49,13 +50,13 @@ const CateringServices = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setModal({ visible: true, loading: true })
     try {
       await api.createInquiry({
         service_name: 'Catering Services',
         ...formData,
         message: `Event Type: ${formData.event_type}, Date: ${formData.event_date}, Guests: ${formData.guest_count}, Menu: ${formData.menu_preference}. ${formData.message}`
       })
-      alert('Your catering inquiry has been submitted! We will contact you soon with a quote.')
       setFormData({
         customer_name: '',
         email: '',
@@ -66,11 +67,14 @@ const CateringServices = () => {
         menu_preference: '',
         message: ''
       })
+      setModal({ visible: true, loading: false, title: 'Thanks — we received your request', message: 'Our team will contact you soon with a quote.' })
     } catch (error) {
       console.error('Error submitting inquiry:', error)
-      alert('Inquiry submitted! (Demo mode)')
+      setModal({ visible: true, loading: false, title: 'Thanks', message: 'Your inquiry was received (demo).' })
     }
   }
+
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   return (
     <div className="service-page catering-page">
@@ -236,6 +240,7 @@ const CateringServices = () => {
           </div>
         </section>
       </div>
+      <SubmissionModal visible={modal.visible} loading={modal.loading} title={modal.title} message={modal.message} onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })} />
     </div>
   )
 }

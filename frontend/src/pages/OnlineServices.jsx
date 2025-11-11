@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
 import './ServicePage.css'
+import SubmissionModal from '../components/SubmissionModal'
 
 const OnlineServices = () => {
   const [selectedService, setSelectedService] = useState(null)
@@ -128,19 +129,22 @@ const OnlineServices = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setModal({ visible: true, loading: true })
     try {
       await api.createInquiry({
         service_name: selectedService?.name || 'Online Service',
         ...formData
       })
-      alert('Your inquiry has been submitted successfully! We will contact you soon.')
       setFormData({ customer_name: '', email: '', phone: '', message: '' })
       setSelectedService(null)
+      setModal({ visible: true, loading: false, title: 'Inquiry received', message: 'Thanks — we will review your request and get back to you shortly.' })
     } catch (error) {
       console.error('Error submitting inquiry:', error)
-      alert('Inquiry submitted! (Demo mode)')
+      setModal({ visible: true, loading: false, title: 'Thanks', message: 'Your inquiry was received (demo).' })
     }
   }
+
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   const features = [
     'Expert assistance throughout',
@@ -264,6 +268,15 @@ const OnlineServices = () => {
               </form>
             </div>
           </div>
+        )}
+        {modal.visible && (
+          <SubmissionModal
+            visible={modal.visible}
+            loading={modal.loading}
+            title={modal.title}
+            message={modal.message}
+            onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })}
+          />
         )}
       </div>
     </div>

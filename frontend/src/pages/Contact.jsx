@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
 import './Contact.css'
+import SubmissionModal from '../components/SubmissionModal'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,23 +13,26 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setModal({ visible: true, loading: true })
     try {
       await api.createInquiry({
         service_name: 'General Inquiry',
         ...formData
       })
-      alert('Thank you for contacting us! We will get back to you soon.')
-      setFormData({
-        customer_name: '',
-        email: '',
-        phone: '',
-        message: ''
+      setFormData({ customer_name: '', email: '', phone: '', message: '' })
+      setModal({
+        visible: true,
+        loading: false,
+        title: 'Thanks for reaching out!',
+        message: 'We appreciate your message. Our team will review it and contact you shortly.'
       })
     } catch (error) {
       console.error('Error submitting contact form:', error)
-      alert('Message sent! (Demo mode)')
+      setModal({ visible: true, loading: false, title: 'Thanks', message: 'Your message was received (demo).' })
     }
   }
+
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   return (
     <div className="contact-page service-page">
@@ -110,6 +114,15 @@ const Contact = () => {
           </div>
         </div>
       </div>
+      {modal.visible && (
+        <SubmissionModal
+          visible={modal.visible}
+          loading={modal.loading}
+          title={modal.title}
+          message={modal.message}
+          onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })}
+        />
+      )}
     </div>
   )
 }

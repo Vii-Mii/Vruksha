@@ -4,6 +4,7 @@ import { api, cartApi } from '../utils/api'
 import { addToCart, getCart } from '../utils/cart'
 import { useAuth } from '../contexts/AuthContext'
 import './PoojaServices.css'
+import SubmissionModal from '../components/SubmissionModal'
 
 const PoojaServices = () => {
   const [products, setProducts] = useState([])
@@ -57,12 +58,12 @@ const PoojaServices = () => {
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault()
+    setModal({ visible: true, loading: true })
     try {
       await api.createBooking({
         service_name: 'Pooja Service',
         ...formData
       })
-      alert('Your pooja booking has been submitted! We will contact you soon.')
       setFormData({
         customer_name: '',
         email: '',
@@ -71,11 +72,14 @@ const PoojaServices = () => {
         date: '',
         message: ''
       })
+      setModal({ visible: true, loading: false, title: 'Booking received', message: 'We will contact you soon.' })
     } catch (error) {
       console.error('Error submitting booking:', error)
-      alert('Booking submitted! (Demo mode)')
+      setModal({ visible: true, loading: false, title: 'Thanks', message: 'Your booking was received (demo).' })
     }
   }
+
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   const features = [
     'Authentic pooja items',
@@ -241,6 +245,15 @@ const PoojaServices = () => {
               </form>
             </div>
           </div>
+        )}
+        {modal.visible && (
+          <SubmissionModal
+            visible={modal.visible}
+            loading={modal.loading}
+            title={modal.title}
+            message={modal.message}
+            onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })}
+          />
         )}
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
+import SubmissionModal from '../components/SubmissionModal'
 import './ServicePage.css'
 
 const BeauticianServices = () => {
@@ -63,12 +64,12 @@ const BeauticianServices = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setModal({ visible: true, loading: true })
     try {
       await api.createBooking({
         service_name: formData.service_type,
         ...formData
       })
-      alert('Your booking has been confirmed! We will contact you to confirm the details.')
       setFormData({
         customer_name: '',
         email: '',
@@ -78,11 +79,14 @@ const BeauticianServices = () => {
         time: '',
         message: ''
       })
+      setModal({ visible: true, loading: false, title: 'Booking received', message: 'We will contact you to confirm the details.' })
     } catch (error) {
       console.error('Error submitting booking:', error)
-      alert('Booking submitted! (Demo mode)')
+      setModal({ visible: true, loading: false, title: 'Thanks', message: 'Your booking was received (demo).' })
     }
   }
+
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   return (
     <div className="service-page beautician-page">
@@ -212,6 +216,7 @@ const BeauticianServices = () => {
           </div>
         </section>
       </div>
+      <SubmissionModal visible={modal.visible} loading={modal.loading} title={modal.title} message={modal.message} onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })} />
     </div>
   )
 }

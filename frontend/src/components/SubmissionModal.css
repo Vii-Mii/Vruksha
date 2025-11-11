@@ -1,0 +1,25 @@
+.submission-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+}
+.submission-modal {
+  background: #fff;
+  padding: 20px;
+  border-radius:12px;
+  width: 320px;
+  text-align:center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.submission-loading { display:flex; flex-direction:column; align-items:center; gap:12px }
+.spinner { width:40px; height:40px; border-radius:50%; border:4px solid #eee; border-top-color:#f0c330; animation:spin 1s linear infinite }
+@keyframes spin { to { transform:rotate(360deg) } }
+.loading-text { font-size:14px; color:#333 }
+.submission-success .check { width:64px; height:64px; border-radius:50%; background:#f0c330; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 8px }
+.submission-success h3 { margin:6px 0 }
+.submission-success p { font-size:14px; color:#444 }
+.submission-modal .btn { margin-top:12px }

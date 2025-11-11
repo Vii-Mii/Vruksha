@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './Checkout.css'
 import { getCart, getCartTotal, clearCart } from '../utils/cart'
 import { api } from '../utils/api'
+import SubmissionModal from '../components/SubmissionModal'
 import { useAuth } from '../contexts/AuthContext'
 import { useLocation } from 'react-router-dom'
 import './Checkout.css'
@@ -21,6 +22,7 @@ const Checkout = () => {
     payment_method: 'cash'
   })
   const [qrState, setQrState] = useState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 })
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   // Polling & expiry for QR modal
   useEffect(() => {
@@ -36,9 +38,46 @@ const Checkout = () => {
           clearInterval(interval)
           setQrState(prev => ({ ...prev, status: 'paid' }))
           sessionStorage.removeItem('pending_payment_id')
-          clearCart()
-          alert('Payment received — order placed!')
-          window.location.href = '/orders'
+
+          // Attempt to reconcile order: if backend webhook already created an order, use that.
+          const token = localStorage.getItem('token')
+          try {
+            // show a short finalizing modal while we confirm
+            setModal({ visible: true, loading: true, title: 'Finalizing order', message: 'Confirming your payment and creating the order...' })
+
+            // If backend created an order when webhook fired, verify endpoint may return order_id
+            if (v.order_id) {
+              // backend already created order
+              clearCart()
+              sessionStorage.removeItem('pending_order')
+              setModal({ visible: true, loading: false, title: 'Payment received', message: 'Thank you — your order is confirmed. We will email the receipt shortly.' })
+              setTimeout(() => navigate('/orders'), 2200)
+            } else {
+              // No order id yet — create order now using saved pending_order (if available)
+              const pendingRaw = sessionStorage.getItem('pending_order')
+              const pending = pendingRaw ? JSON.parse(pendingRaw) : null
+              if (pending) {
+                // create order on server with auth
+                const created = await api.createOrderWithAuth(pending, token)
+                // success -> clear cart and show gratitude
+                clearCart()
+                sessionStorage.removeItem('pending_order')
+                setModal({ visible: true, loading: false, title: 'Order placed', message: 'Payment received — thank you! Your order is confirmed.' })
+                setTimeout(() => navigate('/orders'), 2200)
+              } else {
+                // No pending payload; fallback: clear cart and show gratitude
+                clearCart()
+                setModal({ visible: true, loading: false, title: 'Payment received', message: 'Thank you — your payment was received. Your order will be available in Orders shortly.' })
+                setTimeout(() => navigate('/orders'), 2200)
+              }
+            }
+          } catch (err) {
+            console.error('Error finalizing order after payment:', err)
+            // best effort: still clear local cart and show thank-you modal
+            clearCart()
+            setModal({ visible: true, loading: false, title: 'Payment received', message: 'Thank you — we received your payment. We will reconcile your order and follow up shortly.' })
+            setTimeout(() => navigate('/orders'), 2200)
+          }
         }
       } catch (err) {
         console.error('verify poll error', err)
@@ -122,6 +161,8 @@ const Checkout = () => {
         if (createResp && createResp.image_url) {
           // store pending payment id for fallback
           sessionStorage.setItem('pending_payment_id', createResp.payment_id)
+          // Save the order payload so we can create the order if webhook hasn't run by the time payment is verified
+          sessionStorage.setItem('pending_order', JSON.stringify({ ...orderData }))
           // show modal UI
           setQrState({
             visible: true,
@@ -312,6 +353,16 @@ const Checkout = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {modal.visible && (
+        <SubmissionModal
+          visible={modal.visible}
+          loading={modal.loading}
+          title={modal.title}
+          message={modal.message}
+          onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })}
+        />
       )}
 
   </>)

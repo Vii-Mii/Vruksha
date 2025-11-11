@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
 import './ServicePage.css'
+import SubmissionModal from '../components/SubmissionModal'
 
 const FlowerDecoration = () => {
   const [formData, setFormData] = useState({
@@ -19,28 +20,22 @@ const FlowerDecoration = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setModal({ visible: true, loading: true })
     try {
       await api.createInquiry({
         service_name: 'Flower Decoration',
         ...formData,
         message: `Type: ${formData.decoration_type}, Material: ${formData.material_type}, Date: ${formData.event_date}, Venue: ${formData.venue}. ${formData.message}`
       })
-      alert('Your decoration inquiry has been submitted! We will contact you soon with a quote.')
-      setFormData({
-        customer_name: '',
-        email: '',
-        phone: '',
-        decoration_type: '',
-        material_type: '',
-        event_date: '',
-        venue: '',
-        message: ''
-      })
+      setFormData({ customer_name: '', email: '', phone: '', decoration_type: '', material_type: '', event_date: '', venue: '', message: '' })
+      setModal({ visible: true, loading: false, title: 'Thanks — inquiry received', message: 'We will get back with a quote and next steps soon. Appreciate your interest!' })
     } catch (error) {
       console.error('Error submitting inquiry:', error)
-      alert('Inquiry submitted! (Demo mode)')
+      setModal({ visible: true, loading: false, title: 'Thanks', message: 'Your inquiry was received (demo).' })
     }
   }
+
+  const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
 
   const features = [
     'Fresh flowers daily',
@@ -186,6 +181,15 @@ const FlowerDecoration = () => {
             </form>
           </div>
         </section>
+        {modal.visible && (
+          <SubmissionModal
+            visible={modal.visible}
+            loading={modal.loading}
+            title={modal.title}
+            message={modal.message}
+            onClose={() => setModal({ visible: false, loading: false, title: '', message: '' })}
+          />
+        )}
       </div>
     </div>
   )

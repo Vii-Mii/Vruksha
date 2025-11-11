@@ -7,6 +7,9 @@ from sqlalchemy.orm import sessionmaker, relationship, Session
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import datetime, timedelta
+import smtplib
+import ssl
+from email.message import EmailMessage
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
@@ -14,6 +17,7 @@ import json
 import requests
 import hmac
 import hashlib
+import logging
 
 # Security setup
 SECRET_KEY = "vruksha-secret-key-change-in-production"
@@ -258,6 +262,80 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# Email notification settings are read at send-time so changes to environment variables
+# (for example exporting them after the process starts) are picked up immediately.
+
+def _get_admin_emails() -> list:
+    raw = os.getenv('ADMIN_NOTIFICATION_EMAILS') or os.getenv('ADMIN_NOTIFICATION_EMAIL') or 'vijaymiiyath4300@gmail.com'
+    return [e.strip() for e in raw.split(',') if e.strip()]
+
+def _get_smtp_config():
+    host = os.getenv('SMTP_HOST')
+    port = int(os.getenv('SMTP_PORT', '0')) if os.getenv('SMTP_PORT') else None
+    user = os.getenv('SMTP_USER')
+    password = os.getenv('SMTP_PASS')
+    use_tls = os.getenv('SMTP_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
+    return host, port, user, password, use_tls
+
+
+def send_email(to_email: str, subject: str, body: str, from_email: Optional[str] = None):
+    """Send a simple plain-text email using SMTP. Reads SMTP config from env vars.
+    If SMTP_HOST is not set, the function will raise an exception.
+    """
+    # Read SMTP settings at call time (allows exporting env vars after process start)
+    host, port, user, password, use_tls = _get_smtp_config()
+
+    if not host or not user or not password:
+        # Keep message concise but actionable
+        raise RuntimeError('SMTP is not configured. Set SMTP_HOST, SMTP_USER and SMTP_PASS environment variables.')
+
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = from_email or user
+    msg['To'] = to_email
+    msg.set_content(body)
+
+    # Use SSL if port 465, otherwise use STARTTLS if configured
+    try:
+        if port == 465:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(host, port, context=context) as server:
+                server.login(user, password)
+                server.send_message(msg)
+        else:
+            # default port if not provided
+            port_to_use = port or 587
+            with smtplib.SMTP(host, port_to_use, timeout=10) as server:
+                if use_tls:
+                    server.starttls()
+                server.login(user, password)
+                server.send_message(msg)
+    except Exception as e:
+        # Re-raise to allow caller to handle logging; keep message concise
+        raise
+
+
+# Notification helper
+logger = logging.getLogger("vruksha.notifications")
+if not logger.handlers:
+    logging.basicConfig(level=logging.INFO)
+
+
+def send_admin_notification(subject: str, body: str, from_email: Optional[str] = None):
+    """Send a notification to all configured admin emails. Non-fatal: logs failures per recipient."""
+    admins = _get_admin_emails()
+    if not admins:
+        logger.info("No admin notification recipients configured")
+        return
+
+    for admin_addr in admins:
+        try:
+            send_email(admin_addr, subject, body, from_email=from_email)
+            logger.info(f"Sent admin notification to {admin_addr}")
+        except Exception as exc:
+            logger.warning(f"Failed to send admin notification to {admin_addr}: {exc}")
         
 
 class UserCreate(BaseModel):
@@ -711,6 +789,24 @@ def create_booking(booking: BookingCreate):
         db.add(db_booking)
         db.commit()
         db.refresh(db_booking)
+        # Notify admins about the booking (non-fatal)
+        try:
+            subject = f"New booking: {db_booking.service_name} from {db_booking.customer_name}"
+            body = (
+                f"A new booking was submitted:\n\n"
+                f"Service: {db_booking.service_name}\n"
+                f"Name: {db_booking.customer_name}\n"
+                f"Email: {db_booking.email}\n"
+                f"Phone: {db_booking.phone}\n"
+                f"Date: {db_booking.date}\n"
+                f"Time: {db_booking.time}\n"
+                f"Details:\n{db_booking.details}\n\n"
+                f"--\nThis is an automated notification from Vruksha Services"
+            )
+            # Use centralized helper
+            send_admin_notification(subject, body, from_email=db_booking.email)
+        except Exception as e:
+            print("Error preparing booking email notification:", str(e))
         return {"id": db_booking.id, "message": "Booking created successfully"}
     finally:
         db.close()
@@ -724,6 +820,24 @@ def create_inquiry(inquiry: InquiryCreate):
         db.add(db_inquiry)
         db.commit()
         db.refresh(db_inquiry)
+        # Try to notify admins via email (non-fatal)
+        try:
+            subject = f"New contact request from {inquiry.customer_name}"
+            body = (
+                f"You have received a new contact request:\n\n"
+                f"Name: {inquiry.customer_name}\n"
+                f"Email: {inquiry.email}\n"
+                f"Phone: {inquiry.phone}\n\n"
+                f"Message:\n{inquiry.message}\n\n"
+                f"--\nThis is an automated notification from Vruksha Services"
+            )
+            # Send using centralized helper
+            send_admin_notification(subject, body, from_email=inquiry.email)
+
+        except Exception as e:
+            # protect the endpoint if any unexpected error occurs while preparing email
+            print('Error preparing email notification:', str(e))
+
         return {"id": db_inquiry.id, "message": "Inquiry submitted successfully"}
     finally:
         db.close()
@@ -741,6 +855,22 @@ def create_order(order: OrderCreate, current_user: User = Depends(get_current_us
         db.add(db_order)
         db.commit()
         db.refresh(db_order)
+        # Notify admins about new order (non-fatal)
+        try:
+            subject = f"New order placed: {db_order.id} by {db_order.customer_name}"
+            body = (
+                f"A new order has been placed:\n\n"
+                f"Order ID: {db_order.id}\n"
+                f"Customer: {db_order.customer_name}\n"
+                f"Email: {db_order.email}\n"
+                f"Phone: {db_order.phone}\n"
+                f"Total: {db_order.total_amount}\n"
+                f"Items: {db_order.items}\n\n"
+                f"--\nThis is an automated notification from Vruksha Services"
+            )
+            send_admin_notification(subject, body, from_email=db_order.email)
+        except Exception as e:
+            print("Warning: failed to prepare/send order notification:", str(e))
         return {"id": db_order.id, "message": "Order placed successfully", "created_at": db_order.created_at.isoformat() if db_order.created_at else None}
     finally:
         # db is managed by dependency

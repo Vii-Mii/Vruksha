@@ -103,6 +103,33 @@ const Checkout = () => {
     }
   }, [qrState.visible, qrState.paymentId])
 
+  // When QR status becomes expired, call backend to close provider QR and show expired modal
+  useEffect(() => {
+    if (!qrState.visible && qrState.status !== 'expired') return
+    if (qrState.status === 'expired') {
+      ;(async () => {
+        try {
+          const token = localStorage.getItem('token')
+          const paymentId = qrState.paymentId || sessionStorage.getItem('pending_payment_id')
+          if (paymentId) {
+            await api.closeRazorpayQR(paymentId, token)
+            sessionStorage.removeItem('pending_payment_id')
+          }
+        } catch (err) {
+          console.error('Error closing provider QR:', err)
+        } finally {
+          // Hide QR modal and show expired message, then redirect back to checkout so user can place a new order
+          setQrState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 })
+          setModal({ visible: true, loading: false, title: 'QR expired', message: 'The payment QR has expired. Please place the order again to generate a new QR.' })
+          setTimeout(() => {
+            setModal({ visible: false, loading: false, title: '', message: '' })
+            navigate('/checkout')
+          }, 2800)
+        }
+      })()
+    }
+  }, [qrState.status])
+
   useEffect(() => {
     const cartItems = getCart()
     if (cartItems.length === 0) {
@@ -330,26 +357,7 @@ const Checkout = () => {
               </div>
             </div>
             <div className="qr-actions">
-              {qrState.status === 'expired' ? (
-                <button className="btn" onClick={async () => {
-                  // regenerate
-                  try {
-                    const token = localStorage.getItem('token')
-                    const createResp = await api.createRazorpayQR((total + (total > 1000 ? 0 : 100)), { items: cart, customer_name: formData.customer_name, email: formData.email, phone: formData.phone, address: formData.address }, token)
-                    if (createResp && createResp.image_url) {
-                      setQrState({ visible: true, imageUrl: createResp.image_url, paymentId: createResp.payment_id, status: 'waiting', timeLeft: 120 })
-                      sessionStorage.setItem('pending_payment_id', createResp.payment_id)
-                    } else {
-                      alert('Could not regenerate QR. Try again.')
-                    }
-                  } catch (err) {
-                    console.error(err)
-                    alert('Error regenerating QR')
-                  }
-                }}>Regenerate QR</button>
-              ) : (
-                <button className="btn btn-secondary" onClick={() => { setQrState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 }); window.location.reload() }}>Cancel</button>
-              )}
+              <button className="btn btn-secondary" onClick={() => { setQrState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 }) }}>Cancel</button>
             </div>
           </div>
         </div>

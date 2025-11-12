@@ -69,6 +69,13 @@ export const api = {
     return response.data
   },
 
+  closeRazorpayQR: async (paymentId, token) => {
+    const response = await axios.post(`${API_BASE_URL}/payments/close`, { payment_id: paymentId }, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    return response.data
+  },
+
   createProduct: async (productData) => {
     const response = await axios.post(`${API_BASE_URL}/products`, productData)
     return response.data

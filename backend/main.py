@@ -1128,6 +1128,68 @@ def verify_payment(payment_id: int, current_user: User = Depends(get_current_use
     return {"payment_id": payment.id, "status": payment.status, "order_id": payment.order_id}
 
 
+@app.post('/api/payments/close')
+def close_razorpay_qr(payload: dict, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Close a previously-created Razorpay QR by local payment id.
+    Payload: { payment_id: <int> }
+    This will call Razorpay's close endpoint for the provider_order_id (qr id) and mark local payment as 'closed' (or 'expired').
+    """
+    pid = payload.get('payment_id')
+    if not pid:
+        raise HTTPException(status_code=400, detail='payment_id is required')
+
+    payment = db.query(Payment).filter(Payment.id == int(pid)).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail='Payment not found')
+
+    provider_qr_id = payment.provider_order_id
+    key_id = os.getenv('RAZORPAY_KEY_ID')
+    key_secret = os.getenv('RAZORPAY_KEY_SECRET')
+    if not provider_qr_id or not key_id or not key_secret:
+        # If we don't have a provider QR id or keys, mark locally as expired and return success.
+        payment.status = 'expired'
+        payment.updated_at = datetime.utcnow()
+        db.add(payment)
+        db.commit()
+        return {"ok": True, "message": "Marked local payment expired (no provider info)"}
+
+    # Call Razorpay close API
+    try:
+        url = f'https://api.razorpay.com/v1/payments/qr_codes/{provider_qr_id}/close'
+        resp = requests.post(url, auth=(key_id, key_secret), timeout=10)
+    except Exception as e:
+        # On request failure, mark local payment expired and return error info
+        payment.status = 'expired'
+        payment.updated_at = datetime.utcnow()
+        db.add(payment)
+        db.commit()
+        raise HTTPException(status_code=502, detail=f'Failed to call provider close API: {str(e)}')
+
+    if resp.status_code not in (200, 201):
+        # provider returned error
+        try:
+            data = resp.json()
+        except Exception:
+            data = {"raw": resp.text}
+        payment.status = 'expired'
+        payment.updated_at = datetime.utcnow()
+        db.add(payment)
+        db.commit()
+        raise HTTPException(status_code=502, detail={"provider_error": data})
+
+    # success - update local payment
+    try:
+        data = resp.json()
+    except Exception:
+        data = None
+    payment.status = 'closed'
+    payment.updated_at = datetime.utcnow()
+    db.add(payment)
+    db.commit()
+
+    return {"ok": True, "provider_response": data}
+
+
 @app.post('/api/payments/razorpay/webhook')
 async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
     """Razorpay webhook endpoint. Verifies signature if RAZORPAY_WEBHOOK_SECRET is set.

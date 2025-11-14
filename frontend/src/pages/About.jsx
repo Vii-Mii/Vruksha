@@ -89,19 +89,30 @@ const About = () => {
           <div className="team-testimonial">
             <div className="team">
               <h3>Meet the Team</h3>
-              <p className="muted">A small team of local entrepreneurs and technologists, rooted in Chennai.</p>
+              <p className="muted">A small team of house womens and techies, rooted in Chennai.</p>
               <div className="people">
                 <div className="person">
-                  <div className="avatar">KP</div>
+                  <div className="avatar" aria-hidden="true">
+                    {/* queen / crown icon */}
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 7l4 4 3-5 5 7 3-7 4 4v6H2V7z" fill="#D4AF37" opacity="0.98" />
+                      <path d="M6 17h12v2H6v-2z" fill="#B6890B" opacity="0.9" />
+                    </svg>
+                  </div>
                   <div className="meta">
-                    <strong>K. Prasad</strong>
+                    <strong>Punitha Venugopal</strong>
                     <span>Co-founder — Operations</span>
                   </div>
                 </div>
                 <div className="person">
-                  <div className="avatar">AS</div>
+                  <div className="avatar" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 7l4 4 3-5 5 7 3-7 4 4v6H2V7z" fill="#D4AF37" opacity="0.98" />
+                      <path d="M6 17h12v2H6v-2z" fill="#B6890B" opacity="0.9" />
+                    </svg>
+                  </div>
                   <div className="meta">
-                    <strong>A. Sree</strong>
+                    <strong>Gomathy Pushpalingam</strong>
                     <span>Co-founder — Product</span>
                   </div>
                 </div>
@@ -114,14 +125,22 @@ const About = () => {
                 "Vruksha made arranging puja items and a pandit's services for my family simple and
                 worry-free. Professional and prompt — highly recommended."
               </blockquote>
-              <cite>— R. Srinivasan, Chennai</cite>
+              <cite>— P. Vijayaraj, Chennai</cite>
             </div>
           </div>
         </section>
 
         <section className="about-cta">
-          <Link to="/contact" className="btn btn-primary">Get in touch</Link>
-          <Link to="/" className="btn btn-ghost">Explore services</Link>
+          <Link to="/contact" className="btn btn-gold">
+            <span className="btn-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 5v14a2 2 0 0 0 2 2h14" stroke="#B6890B" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 5l-9 7L3 5" stroke="#B6890B" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            Get in touch
+          </Link>
+          <Link to="/" className="btn btn-primary">Explore services</Link>
         </section>
       </div>
     </div>

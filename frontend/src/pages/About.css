@@ -1,10 +1,10 @@
 /* Minimalistic white + gold About page styles */
 
 .about-page.clean-about {
-	background: #ffffff;
-	color: #1a1a1a;
+	background: #fbfbfb;
+	color: #111;
 	padding: 64px 0 100px;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+	font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
 .about-container {
@@ -15,20 +15,20 @@
 
 .about-header {
 	display: flex;
-	gap: 20px;
-	align-items: center;
-	margin-bottom: 28px;
+ 	gap: 20px;
+ 	align-items: center;
+  margin-bottom: 26px;
 }
 
 .logo-mark {
-	width: 64px;
-	height: 64px;
+	width: 72px;
+	height: 72px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06));
-	border-radius: 12px;
-	box-shadow: 0 6px 18px rgba(212,175,55,0.06);
+	background: linear-gradient(180deg, rgba(212,175,55,0.10), rgba(212,175,55,0.04));
+	border-radius: 14px;
+	box-shadow: 0 8px 28px rgba(20,20,20,0.04);
 }
 
 .about-title h1 {
@@ -45,9 +45,9 @@
 }
 
 .about-summary {
-	margin: 20px 0 36px;
-	font-size: 16px;
-	line-height: 1.6;
+	margin: 18px 0 30px;
+	font-size: 16.5px;
+	line-height: 1.7;
 	color: #333;
 }
 
@@ -60,10 +60,11 @@
 
 .feature {
 	background: #fff;
-	border: 1px solid rgba(212,175,55,0.12);
+	border: 1px solid rgba(20,20,20,0.04);
 	padding: 18px;
-	border-radius: 10px;
+	border-radius: 12px;
 	min-height: 110px;
+	box-shadow: 0 8px 22px rgba(15,15,15,0.03);
 }
 
 .feature h3 {
@@ -79,9 +80,29 @@
 }
 
 .about-cta {
-	display: flex;
-	gap: 12px;
+  display: flex;
+  gap: 12px;
 }
+
+.btn-gold {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 14px;
+	border-radius: 8px;
+	background: transparent;
+	color: #B6890B;
+	border: 1px solid rgba(184,148,31,0.12);
+	font-weight: 600;
+	transition: background .12s ease, transform .12s ease;
+}
+
+.btn-gold:hover {
+	background: rgba(184,148,31,0.06);
+	transform: translateY(-2px);
+}
+
+.btn-icon { display: inline-flex; align-items:center; justify-content:center }
 
 .btn {
 	display: inline-flex;
@@ -94,9 +115,9 @@
 }
 
 .btn-primary {
-	background: linear-gradient(90deg, #D4AF37, #B6890B);
-	color: #fff;
-	box-shadow: 0 6px 18px rgba(214,175,55,0.18);
+  background: linear-gradient(90deg, #D4AF37, #B6890B);
+  color: #fff;
+  box-shadow: 0 8px 28px rgba(214,175,55,0.14);
 }
 
 .btn-ghost {
@@ -129,9 +150,9 @@
 }
 
 .panel h2 {
-	margin: 0 0 10px 0;
-	color: #111;
-	font-size: 18px;
+  margin: 0 0 10px 0;
+  color: #111;
+  font-size: 18px;
 }
 
 .panel p {
@@ -148,10 +169,10 @@
 }
 
 .value-item {
-	background: rgba(212,175,55,0.04);
-	border: 1px solid rgba(212,175,55,0.08);
-	padding: 12px;
-	border-radius: 8px;
+  background: rgba(212,175,55,0.03);
+  border: 1px solid rgba(20,20,20,0.04);
+  padding: 12px;
+  border-radius: 8px;
 }
 
 .value-item strong {
@@ -177,10 +198,10 @@
 }
 
 .team-testimonial {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 18px;
-	align-items: start;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
 }
 
 .team h3,
@@ -206,15 +227,22 @@
 }
 
 .avatar {
-	width: 44px;
-	height: 44px;
-	background: linear-gradient(135deg, #D4AF37, #B6890B);
+	width: 56px;
+	height: 56px;
+	background: linear-gradient(180deg, rgba(212,175,55,0.10), rgba(212,175,55,0.04));
 	color: #fff;
-	border-radius: 10px;
+	border-radius: 12px;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
+	box-shadow: 0 6px 18px rgba(15,15,15,0.04);
+}
+
+.avatar svg {
+	width: 30px;
+	height: 30px;
+	display: block;
 }
 
 .person .meta strong {

@@ -34,12 +34,15 @@ const PoojaServices = () => {
   }, [])
 
   const poojaTypes = [
-    'Griha Pravesh (House Warming)',
-    'Satyanarayana Pooja',
-    'Lakshmi Pooja',
-    'Ganapathi Homam',
-    'Navagraha Pooja',
-    'Wedding Pooja'
+    {
+      name: 'Griha Pravesh (House Warming)',
+      desc: 'Bless your new home with traditional rituals and offerings.'
+    },
+    { name: 'Satyanarayana Pooja', desc: 'A simple, powerful ritual for prosperity and gratitude.' },
+    { name: 'Lakshmi Pooja', desc: 'Invoke the blessings of Lakshmi for wealth and well-being.' },
+    { name: 'Ganapathi Homam', desc: 'A homam to remove obstacles and seek auspicious beginnings.' },
+  { name: 'Navagraha Pooja', desc: 'Rituals focused on balancing the nine planetary influences.' },
+    { name: 'Wedding Pooja', desc: 'Ceremonies and rituals to sanctify wedding occasions.' }
   ]
 
   const toast = useToast()
@@ -172,12 +175,20 @@ const PoojaServices = () => {
           <div className="services-section">
             <div className="pooja-types">
               <h2>Types of Poojas Offered</h2>
-              <div className="pooja-list">
+              <div className="pooja-list minimal-grid">
                 {poojaTypes.map((type, index) => (
-                  <div key={index} className="pooja-type-card">
-                    <div className="icon">{type.split(' ')[0].slice(0,2).toUpperCase()}</div>
-                    <div>
-                      <h3>{type}</h3>
+                  <div key={index} className="pooja-type-card minimal">
+                    <div className="pooja-icon" aria-hidden="true">
+                      {/* simple diya svg */}
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C12 2 9.8 5 12 7C14.2 5 12 2 12 2Z" fill="#F7C948" />
+                        <path d="M3 13C3 13 6 11 12 11C18 11 21 13 21 13C20 17 16 20 12 20C8 20 4 17 3 13Z" fill="#D98E04" />
+                        <path d="M7 13C7 13 9 9 12 9C15 9 17 13 17 13" stroke="#C76B00" strokeWidth="0.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="pooja-content">
+                      <h3>{type.name}</h3>
+                      <p className="pooja-desc">{type.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -225,7 +236,7 @@ const PoojaServices = () => {
                   >
                     <option value="">Select Pooja Type</option>
                     {poojaTypes.map((type) => (
-                      <option key={type} value={type}>{type}</option>
+                      <option key={type.name} value={type.name}>{type.name}</option>
                     ))}
                   </select>
                 </div>

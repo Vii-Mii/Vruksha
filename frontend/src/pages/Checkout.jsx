@@ -19,7 +19,8 @@ const Checkout = () => {
     address: '',
     city: 'Chennai',
     pincode: '',
-    payment_method: 'cash'
+    // Only UPI allowed from UI
+    payment_method: 'upi'
   })
   const [qrState, setQrState] = useState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 })
   const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
@@ -300,8 +301,6 @@ const Checkout = () => {
                   value={formData.payment_method}
                   onChange={(e) => setFormData({ ...formData, payment_method: e.target.value })}
                 >
-                  <option value="cash">Cash on Delivery</option>
-                  <option value="card">Credit/Debit Card</option>
                   <option value="upi">UPI</option>
                 </select>
               </div>
@@ -361,7 +360,23 @@ const Checkout = () => {
               </div>
             </div>
             <div className="qr-actions">
-              <button className="btn btn-secondary" onClick={() => { setQrState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 }) }}>Cancel</button>
+              <button className="btn btn-secondary" onClick={async () => {
+                try {
+                  const paymentId = qrState.paymentId || sessionStorage.getItem('pending_payment_id')
+                  const token = localStorage.getItem('token')
+                  if (paymentId) {
+                    await api.closeRazorpayQR(paymentId, token)
+                    sessionStorage.removeItem('pending_payment_id')
+                  }
+                } catch (err) {
+                  console.error('Error closing QR on cancel:', err)
+                } finally {
+                  setQrState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 })
+                  // show a small cancel modal to inform the user
+                  setModal({ visible: true, loading: false, title: 'Payment cancelled', message: 'The payment has been cancelled. You can place the order again to generate a new QR.' })
+                  setTimeout(() => setModal({ visible: false, loading: false, title: '', message: '' }), 2600)
+                }
+              }}>Cancel</button>
             </div>
           </div>
         </div>

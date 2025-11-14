@@ -364,6 +364,7 @@ class OrderCreate(BaseModel):
     address: str
     total_amount: float
     items: str
+    payment_method: Optional[str] = 'upi'
 
 
 class ShipmentCreate(BaseModel):
@@ -1518,10 +1519,14 @@ def create_order(
     """Create an order tied to the authenticated user."""
     try:
         order_data = order.dict()
+        # Enforce allowed payment methods: only UPI is permitted via API
+        pm = order_data.get('payment_method') if isinstance(order_data, dict) else None
+        if pm and pm.lower() not in ('upi',):
+            raise HTTPException(status_code=400, detail="Only UPI payments are accepted at this time")
         # Override email/customer_name with authenticated user info for integrity
         order_data["email"] = current_user.email
         order_data["customer_name"] = current_user.name
-        # Normalize items: ensure we store `selectedColor` { name, hex } for every item
+    # Normalize items: ensure we store `selectedColor` { name, hex } for every item
         try:
             raw_items = order_data.get('items', '[]')
             items = json.loads(raw_items) if isinstance(raw_items, str) else raw_items

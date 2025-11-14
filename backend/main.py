@@ -145,6 +145,8 @@ class UserProfile(Base):
     city = Column(String, nullable=True)
     state = Column(String, nullable=True)
     pincode = Column(String, nullable=True)
+    # Lightweight per-user wishlist stored as JSON string (optional)
+    wishlist = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -187,6 +189,13 @@ Base.metadata.create_all(bind=engine)
 try:
     with engine.connect() as conn:
         conn.execute("ALTER TABLE products ADD COLUMN colors TEXT")
+except Exception:
+    pass
+
+# Try to add `wishlist` column on user_profiles if it does not exist; ignore failures
+try:
+    with engine.connect() as conn:
+        conn.execute("ALTER TABLE user_profiles ADD COLUMN wishlist TEXT")
 except Exception:
     pass
 
@@ -1654,6 +1663,90 @@ def get_user_orders(
         pass
 
 
+# Wishlist endpoints (per-user wishlist)
+@app.get("/api/wishlist", response_model=List[dict])
+def get_wishlist(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Return wishlist items for current user."""
+    try:
+        # wishlist stored as JSON array in user's profile row or a dedicated column; reuse Cart table pattern
+        # We keep a lightweight per-user wishlist stored in UserProfile.wishlist (JSON string) if present, else empty.
+        profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+        if not profile:
+            return []
+        try:
+            items = json.loads(profile.wishlist) if getattr(profile, 'wishlist', None) else []
+        except Exception:
+            items = []
+        return items
+    finally:
+        pass
+
+
+@app.post("/api/wishlist")
+def add_to_wishlist(payload: dict, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Add a product to the user's wishlist. Payload: { product: { ... } } or { product_id: 123 }
+    Returns the new wishlist array.
+    """
+    prod = payload.get('product') or payload.get('product_id')
+    if not prod:
+        raise HTTPException(status_code=400, detail="product payload is required")
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile:
+        profile = UserProfile(user_id=current_user.id, wishlist=json.dumps([prod]))
+        db.add(profile)
+        db.commit()
+        return [prod]
+    try:
+        current = json.loads(profile.wishlist) if profile.wishlist else []
+    except Exception:
+        current = []
+    # avoid duplicates by id when possible
+    to_add = prod if isinstance(prod, dict) else { 'id': prod }
+    exists = False
+    for it in current:
+        try:
+            if isinstance(it, dict) and isinstance(to_add, dict) and it.get('id') and to_add.get('id') and int(it.get('id')) == int(to_add.get('id')):
+                exists = True
+                break
+            if not isinstance(it, dict) and not isinstance(to_add, dict) and int(it) == int(to_add):
+                exists = True
+                break
+        except Exception:
+            continue
+    if not exists:
+        current.append(to_add)
+    profile.wishlist = json.dumps(current)
+    db.add(profile)
+    db.commit()
+    return current
+
+
+@app.delete("/api/wishlist/{product_id}")
+def remove_from_wishlist(product_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Remove a product from the user's wishlist by product_id."""
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile or not profile.wishlist:
+        return []
+    try:
+        current = json.loads(profile.wishlist)
+    except Exception:
+        current = []
+    filtered = []
+    for it in current:
+        try:
+            if isinstance(it, dict) and it.get('id') and int(it.get('id')) == int(product_id):
+                continue
+            if not isinstance(it, dict) and int(it) == int(product_id):
+                continue
+        except Exception:
+            pass
+        filtered.append(it)
+    profile.wishlist = json.dumps(filtered)
+    db.add(profile)
+    db.commit()
+    return filtered
+
+
 # Development helper: list all orders (no auth) for debugging only
 @app.get("/api/orders/all", response_model=List[dict])
 def get_all_orders(db: Session = Depends(get_db)):
@@ -1929,7 +2022,8 @@ def create_razorpay_qr(
             if resp.status_code in (200, 201):
                 data = resp.json()
                 provider_qr_id = data.get("id")
-                image_url = data.get("image_url")
+                # Razorpay may return image_url at top-level or nested under `qr`
+                image_url = data.get("image_url") or (data.get("qr") and data.get("qr").get("image_url"))
                 # store provider qr id
                 payment.provider_order_id = provider_qr_id
                 db.add(payment)

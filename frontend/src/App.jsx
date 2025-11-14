@@ -20,6 +20,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
 import Orders from './pages/Orders'
+import Wishlist from './pages/Wishlist'
 import { AuthProvider } from './contexts/AuthContext'
 import './App.css'
 
@@ -50,6 +51,7 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
           </main>
         </div>

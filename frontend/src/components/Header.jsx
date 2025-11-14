@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Header.css'
 import { cartApi } from '../utils/api'
-import { ShoppingCart, User, ChevronDown, UserCheck, Box, LogOut } from 'lucide-react'
+import { ShoppingCart, User, ChevronDown, UserCheck, Box, LogOut, Heart } from 'lucide-react'
 
 const Header = () => {
   const [cartCount, setCartCount] = useState(0)
@@ -125,6 +125,17 @@ const Header = () => {
                     >
                       <Box size={16} color="#666" />
                       My Orders
+                    </button>
+                    <button
+                      type="button"
+                      className="user-menu-item"
+                      onClick={() => {
+                        setIsUserMenuOpen(false)
+                        navigate('/wishlist')
+                      }}
+                    >
+                      <Heart size={16} color="#666" />
+                      My Wishlist
                     </button>
                     <div className="user-menu-divider"></div>
                     {user?.is_admin && (

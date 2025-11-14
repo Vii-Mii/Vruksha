@@ -92,8 +92,15 @@ const Orders = () => {
       <div className="container">
         <div className="profile-card">
           <div className="profile-header">
-            <h2>Your Orders</h2>
-            <p className="muted">A concise history of your purchases</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2>Your Orders</h2>
+                <p className="muted">A concise history of your purchases</p>
+              </div>
+              <div className="profile-header-actions">
+                <button className="btn btn-ghost compact" style={{ background: 'transparent', border: '1px solid rgba(184,148,31,0.12)', color: '#B8941F' }} onClick={() => navigate('/wishlist')}>My Wishlist</button>
+              </div>
+            </div>
           </div>
 
           <div className="profile-body">

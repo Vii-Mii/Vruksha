@@ -100,6 +100,25 @@ export const api = {
   }
 }
 
+// Wishlist helpers
+api.getWishlist = async (token) => {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.get(`${API_BASE_URL}/wishlist`, { headers })
+  return response.data
+}
+
+api.addToWishlist = async (product, token) => {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.post(`${API_BASE_URL}/wishlist`, { product }, { headers })
+  return response.data
+}
+
+api.removeFromWishlist = async (productId, token) => {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.delete(`${API_BASE_URL}/wishlist/${productId}`, { headers })
+  return response.data
+}
+
 // Admin/order related APIs
 export const adminApi = {
   listOrders: async () => {

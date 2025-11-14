@@ -328,14 +328,25 @@ const ProductDetail = () => {
                 <div className="actions-right">
                   <button className="add-btn" onClick={() => handleAdd()}>Add to Cart</button>
                   <div className="icon-row">
-                      <button className="icon-btn" aria-label="Add to wishlist">
+                      <button className="icon-btn" aria-label="Add to wishlist" onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('token')
+                          if (!token) return alert('Please login to use wishlist')
+                          // toggle: if already in wishlist, remove; otherwise add
+                          if (product && product.id) {
+                            // Try to add to wishlist (backend will avoid dupes)
+                            await api.addToWishlist({ id: product.id, name: product.name, price: product.price }, token)
+                            alert('Added to wishlist')
+                          }
+                        } catch (err) {
+                          console.error('Wishlist add error', err)
+                          alert('Could not update wishlist')
+                        }
+                      }}>
                         <Heart size={16} color="#111" />
                       </button>
                       <button className="icon-btn" aria-label="Share product">
                         <Share2 size={16} color="#111" />
-                      </button>
-                      <button className="icon-btn" aria-label="Compare product">
-                        <Layers size={16} color="#111" />
                       </button>
                   </div>
                 </div>

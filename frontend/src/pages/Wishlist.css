@@ -1,0 +1,120 @@
+/* Minimalist wishlist styles */
+.wishlist-page {
+  padding: 20px;
+}
+.wishlist-page h1 { text-align: center; margin-bottom: 8px }
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.wish-card {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  box-shadow: 0 1px 4px rgba(2,6,23,0.04);
+}
+.wish-thumb {
+  flex: 0 0 110px;
+  height: 88px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.wish-thumb img { width: 100%; height: 100%; object-fit: cover; display: block }
+.wish-body { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0 }
+.wish-top { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.wish-title { font-size: 14px; margin: 0; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.wish-price { font-weight: 700; color: #0f172a; font-size: 13px }
+.wish-actions { margin-top: 8px; display: flex; gap: 8px; align-items: center }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; background: transparent; border: none; cursor: pointer; color: #0f172a }
+.icon-btn:hover { background: rgba(37,99,235,0.06) }
+.icon-btn.muted { color: #6b7280 }
+.icon-btn svg { display: block }
+
+@media (max-width: 600px) {
+  .wishlist-grid { grid-template-columns: 1fr }
+  .wish-thumb { flex: 0 0 88px; height: 64px }
+}
+
+/* Wishlist list view: reuse product-card styles but make it a horizontal list */
+.wishlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+}
+.wishlist-item {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+.wishlist-item .product-image {
+  width: 180px;
+  height: 140px;
+}
+.wishlist-item .product-info { padding: 14px }
+.wishlist-item .product-description { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-clamp: 3 }
+.wishlist-footer { display: flex; align-items: center; gap: 12px }
+.wishlist-footer .icon-btn { width: 40px; height: 40px; border-radius: 8px }
+.tag { display: inline-block; background: rgba(37,99,235,0.06); color: #2563eb; padding: 4px 8px; border-radius: 999px; font-size: 12px; margin-right: 6px }
+
+@media (max-width: 980px) {
+  .wishlist-item { flex-direction: column }
+  .wishlist-item .product-image { width: 100%; height: 220px }
+  .wishlist-footer { justify-content: space-between }
+}
+
+/* Compact admin-like rows for wishlist */
+.wishlist-admin-list .admin-product-row { padding: 10px; border-radius: 8px; }
+.wishlist-admin-list .admin-product-row img { width: 56px; height: 56px; border-radius: 6px }
+.wishlist-admin-list .admin-product-row .btn { padding: 6px 10px; font-size: 13px }
+.wishlist-admin-list .admin-product-row .btn.compact { padding: 6px 8px; font-size: 12px }
+.wishlist-admin-list .admin-product-row div > div { max-width: 420px }
+.wishlist-admin-list .admin-product-row strong { display: block; font-size: 14px }
+.wishlist-admin-list .admin-product-row .btn-ghost { color: #2563eb }
+
+/* Center list and constrain width for a narrower, minimalist look */
+.wishlist-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+.wishlist-admin-list .admin-product-row {
+  width: 100%;
+  max-width: 760px; /* narrower row width */
+  padding: 8px 12px;
+  align-items: center;
+}
+.wishlist-admin-list .admin-product-row > div:first-child { flex: 1 1 auto }
+.wishlist-admin-list .admin-product-row img { width: 48px; height: 48px }
+.wishlist-admin-list .admin-product-row strong { font-size: 13px }
+.wishlist-admin-list .admin-product-row div > div { max-width: 360px }
+
+/* Styled View button for wishlist */
+.wishlist-admin-list .btn-ghost.compact {
+  color: #B8941F; /* gold tone */
+  background: transparent;
+  border: 1px solid rgba(184,148,31,0.12);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+.wishlist-admin-list .btn-ghost.compact:hover {
+  background: rgba(184,148,31,0.07);
+  transform: translateY(-2px);
+}
+.wishlist-admin-list .btn-danger.compact { padding: 6px 10px }
+
+@media (max-width: 760px) {
+  .wishlist-admin-list .admin-product-row { max-width: 100%; padding: 10px }
+  .wishlist-admin-list .admin-product-row div > div { max-width: 100% }
+}

@@ -6,17 +6,27 @@ export const getCart = () => {
 
 export const addToCart = (product) => {
   const cart = getCart()
-  const incomingSize = product.size ?? null
-  const existingItem = cart.find(item => item.id === product.id && (item.size ?? null) === incomingSize)
+  const incomingSize = product.selectedSize ?? product.size ?? null
+  const incomingVariantId = product.variant_id ?? null
+  const existingItem = cart.find(
+    (item) => item.id === product.id && (item.variant_id ?? null) === incomingVariantId && (item.size ?? null) === incomingSize
+  )
 
   if (existingItem) {
     existingItem.quantity = (existingItem.quantity || 0) + (product.quantity || 1)
   } else {
     cart.push({
       id: product.id,
+      variant_id: incomingVariantId,
+      variant_color: product.variant_color || null,
+      // Persist selectedColor object when provided (name + hex) for richer UI
+      selectedColor: product.selectedColor ? { name: product.selectedColor.name, hex: product.selectedColor.hex } : null,
       name: product.name,
       price: product.price,
-      image_url: product.image_url,
+      // prefer selectedImage (from UI) or first image in images[] returned by API
+  // persist selectedImage and a normalized image_url derived from variant images
+  image_url: product.selectedImage || (product.images && product.images[0]) || null,
+      selectedImage: product.selectedImage || (product.images && product.images[0]) || null,
       size: incomingSize,
       quantity: product.quantity || 1
     })
@@ -49,7 +59,10 @@ export const mergeCarts = (localCart, serverCart) => {
   const merged = [...serverCart]
   for (const item of localCart) {
     const itemSize = item.size ?? null
-    const found = merged.find(i => i.id === item.id && (i.size ?? null) === itemSize)
+    const itemVariant = item.variant_id ?? null
+    const found = merged.find(
+      (i) => i.id === item.id && (i.variant_id ?? null) === itemVariant && (i.size ?? null) === itemSize
+    )
     if (found) {
       found.quantity = (found.quantity || 0) + (item.quantity || 1)
     } else {

@@ -3,9 +3,10 @@
 .breadcrumb { font-size: 13px; color: #666; margin-bottom: 12px; display:flex; gap:8px; align-items:center }
 .breadcrumb a { color: #666; text-decoration:none }
 
-.pd-grid { display: grid; grid-template-columns: 1fr 420px; gap: 32px; align-items: start; }
+/* Stack images above info and make details wider (centered) */
+.pd-grid { display: grid; grid-template-columns: 1fr 560px; gap: 36px; align-items: start; }
 
-.pd-images .main-image { background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; height: 420px; overflow: hidden; display:flex; align-items:center; justify-content:center }
+.pd-images .main-image { background: #fff; border: 1px solid #E5E5E5; border-radius: 10px; height: 480px; overflow: hidden; display:flex; align-items:center; justify-content:center }
 .pd-images .main-image { cursor: zoom-in }
 .pd-images .main-image img { width:100%; height:100%; object-fit:cover; transition: transform 0.25s ease }
 .pd-images .main-image:hover img { transform: scale(1.06) }
@@ -14,7 +15,7 @@
 .pd-images .thumb img { width:100%; height:100%; object-fit:cover }
 .pd-images .thumb.active { box-shadow: 0 8px 20px rgba(0,0,0,0.06); border-color: rgba(212,175,55,0.18) }
 
-.pd-info { background: #fff; border-radius: 10px; padding: 18px; border: 1px solid #E5E5E5 }
+.pd-info { background: #fff; border-radius: 10px; padding: 28px; border: 1px solid #E5E5E5; box-shadow: 0 8px 22px rgba(0,0,0,0.05); width:100%; }
 .pd-title { font-size: 18px; margin: 0 0 8px; font-weight: 600 }
 .pd-topline { display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px }
 .rating { display:flex; align-items:center; gap:8px }
@@ -28,7 +29,27 @@
 
 .pd-desc { color:#555; font-size:14px; line-height:1.5; max-height:3.6em; overflow:hidden }
 
-.pd-actions { display:flex; gap:12px; align-items:center; margin:14px 0 }
+.pd-actions { display:flex; gap:16px; align-items:center; margin:10px 0 20px }
+/* Color selector styles */
+.color-selector { display:flex; flex-direction:column; gap:8px; margin-right:12px }
+.color-label { font-size:13px; color:#666 }
+.swatches { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+
+/* New block variant: color selector shown above action row */
+.color-selector-block { display:flex; flex-direction:column; gap:10px; margin-bottom:14px }
+.color-selector-block .swatches { align-items:center }
+.swatch { border:1px solid #eee; padding:6px; border-radius:8px; background:white; cursor:pointer }
+.swatch .swatch-circle { display:block; width:28px; height:28px; border-radius:50%; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid rgba(255,255,255,0.6) }
+.swatch.active { box-shadow: 0 10px 24px rgba(212,175,55,0.12); transform: translateY(-4px) }
+
+/* Size selector */
+.size-selector { display:flex; flex-direction:column; gap:8px; margin:10px 0 }
+.size-label { font-size:13px; color:#666 }
+.sizes { display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+.size-btn { padding:8px 12px; border-radius:6px; border:1px solid #eee; background:white; cursor:pointer }
+.size-btn.active { background: linear-gradient(90deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06)); border-color: rgba(212,175,55,0.28); box-shadow: 0 8px 20px rgba(212,175,55,0.06) }
+.size-btn:focus { outline: 2px solid rgba(212,175,55,0.18); outline-offset: 2px }
+
 .qty { display:flex; align-items:center; border:1px solid #eee; border-radius:8px; overflow:hidden }
 .qty-btn { width:34px; height:34px; border:none; background:#fafafa; cursor:pointer; font-weight:700 }
 .qty-val { padding:6px 10px; min-width:36px; text-align:center }
@@ -79,14 +100,19 @@
 .bottom-actions { margin-top:12px }
 
 /* skeletons */
-.pd-skeleton { display:grid; grid-template-columns:1fr 420px; gap:24px }
+.pd-skeleton { display:grid; grid-template-columns:1fr 560px; gap:28px }
 .pd-skeleton .s-left { height:420px; background:#f6f6f6; border-radius:10px }
 .pd-skeleton .s-right .s-line { height:14px; background:#f4f4f4; border-radius:6px; margin-bottom:10px }
 .pd-skeleton .s-right .s-line.short { width:40% }
 .pd-skeleton .s-right .s-box { height:80px; background:#f4f4f4; border-radius:8px }
 
+@media (max-width: 1200px) {
+  .pd-images .main-image { height: 440px }
+}
+
 @media (max-width: 980px) {
   .pd-grid { grid-template-columns: 1fr; }
   .pd-images .main-image { height: 320px }
   .pd-skeleton { grid-template-columns: 1fr }
+  .pd-info { padding: 16px; }
 }

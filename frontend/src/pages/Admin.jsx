@@ -24,20 +24,27 @@ const Admin = () => {
     subcategory: 'sarees',
     description: '',
     price: '',
-    image: null,
-    imagePreview: '',
-    size: 'Free Size',
-    stock: 10
+    // parent image/size/stock removed - variants carry these
   })
+
+  // For per-color variants in clothing
+  const [clothingColors, setClothingColors] = useState([
+    { name: 'Default', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'Free Size', stock: 5 }] }
+  ])
+  // For pooja and toys variants (same UI as clothing)
+  const [poojaColors, setPoojaColors] = useState([
+    { name: 'Default', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'Free Size', stock: 5 }] }
+  ])
+  const [toysColors, setToysColors] = useState([
+    { name: 'Default', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'Free Size', stock: 5 }] }
+  ])
 
   const [poojaForm, setPoojaForm] = useState({
     name: '',
     subcategory: 'idols',
     description: '',
     price: '',
-    image: null,
-    imagePreview: '',
-    stock: 10
+    // parent image/stock removed
   })
 
   const [toysForm, setToysForm] = useState({
@@ -45,10 +52,8 @@ const Admin = () => {
     subcategory: 'educational',
     description: '',
     price: '',
-    image: null,
-    imagePreview: '',
-    age_group: '5-10',
-    stock: 10
+    // parent image/stock removed
+    age_group: '5-10'
   })
 
   const clothingSubcategories = [
@@ -178,32 +183,56 @@ const Admin = () => {
         subcategory: product.subcategory || 'sarees',
         description: product.description || '',
         price: product.price || '',
-        image: null,
-        imagePreview: product.image_url || '',
-        size: product.size || 'Free Size',
-        stock: product.stock || 10
       })
+      // load variants into clothingColors for editing if present
+      if (product.variants && Array.isArray(product.variants) && product.variants.length) {
+        // Preserve the variant id so updates can reference existing variants.
+        setClothingColors(product.variants.map(v => ({
+          id: v.id,
+          name: v.color || 'Variant',
+          hex: v.color_code || '#cccccc',
+          image: null,
+          imagePreview: (v.images && v.images[0]) || '',
+          // sizes: array of objects { size, stock }
+          sizes: (v.sizes || []).map(s => ({ size: s.size, stock: s.stock || 0 }))
+        })))
+      }
     } else if (product.category === 'pooja_items') {
       setPoojaForm({
         name: product.name || '',
         subcategory: product.subcategory || 'idols',
         description: product.description || '',
         price: product.price || '',
-        image: null,
-        imagePreview: product.image_url || '',
-        stock: product.stock || 10
+        // parent image/stock removed
       })
+      if (product.variants && Array.isArray(product.variants) && product.variants.length) {
+        setPoojaColors(product.variants.map(v => ({
+          id: v.id,
+          name: v.color || 'Variant',
+          hex: v.color_code || '#cccccc',
+          image: null,
+          imagePreview: (v.images && v.images[0]) || '',
+          sizes: (v.sizes || []).map(s => ({ size: s.size, stock: s.stock || 0 }))
+        })))
+      }
     } else if (product.category === 'toys') {
       setToysForm({
         name: product.name || '',
         subcategory: product.subcategory || 'educational',
         description: product.description || '',
         price: product.price || '',
-        image: null,
-        imagePreview: product.image_url || '',
-        age_group: product.age_group || '5-10',
-        stock: product.stock || 10
+        age_group: product.age_group || '5-10'
       })
+      if (product.variants && Array.isArray(product.variants) && product.variants.length) {
+        setToysColors(product.variants.map(v => ({
+          id: v.id,
+          name: v.color || 'Variant',
+          hex: v.color_code || '#cccccc',
+          image: null,
+          imagePreview: (v.images && v.images[0]) || '',
+          sizes: (v.sizes || []).map(s => ({ size: s.size, stock: s.stock || 0 }))
+        })))
+      }
     }
   }
 
@@ -257,10 +286,16 @@ const Admin = () => {
         {items.map((it, idx) => (
           <div key={idx} className="order-item-row">
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <img src={it.image_url || 'https://via.placeholder.com/80'} alt={it.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
+              <img src={((it.images && it.images[0]) || it.selectedImage) || 'https://via.placeholder.com/80'} alt={it.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
               <div>
                 <strong>{it.name}</strong>
                 <div style={{ color: '#666', fontSize: 13 }}>{(it.subcategory || '')} • ₹{it.price}</div>
+                {it.selectedColor && (
+                  <div style={{ marginTop: 6 }}><span style={{ display: 'inline-block', width: 12, height: 12, background: it.selectedColor.hex || '#ccc', borderRadius: 4, marginRight: 8, verticalAlign: 'middle' }} />{it.selectedColor.name}</div>
+                )}
+                {!it.selectedColor && it.variant_color && (
+                  <div style={{ marginTop: 6 }}>Color: {it.variant_color}</div>
+                )}
               </div>
             </div>
             <div style={{ textAlign: 'right', minWidth: 120 }}>
@@ -326,33 +361,64 @@ const Admin = () => {
   }
 
   const handleImageUpload = (file, formType) => {
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        showMessage('Please select a valid image file.', true)
-        return
+    if (!file) return
+
+    // Validate file type
+    if (!file.type || !file.type.startsWith('image/')) {
+      showMessage('Please select a valid image file.', true)
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('Image size should be less than 5MB.', true)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const imagePreview = e.target.result
+
+      // formType like 'clothing-color-0' or 'pooja-color-1' or 'toys-color-2'
+      if (formType && formType.includes('-color-')) {
+        const parts = formType.split('-color-')
+        const prefix = parts[0]
+        const idx = parseInt(parts[1], 10)
+        if (prefix === 'clothing') {
+          setClothingColors(prev => {
+            const copy = [...prev]
+            copy[idx] = { ...copy[idx], image: file, imagePreview }
+            return copy
+          })
+          return
+        }
+        if (prefix === 'pooja') {
+          setPoojaColors(prev => {
+            const copy = [...prev]
+            copy[idx] = { ...copy[idx], image: file, imagePreview }
+            return copy
+          })
+          return
+        }
+        if (prefix === 'toys') {
+          setToysColors(prev => {
+            const copy = [...prev]
+            copy[idx] = { ...copy[idx], image: file, imagePreview }
+            return copy
+          })
+          return
+        }
       }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        showMessage('Image size should be less than 5MB.', true)
+
+      if (formType === 'toys') {
+        setToysForm(prev => ({ ...prev, image: file, imagePreview }))
         return
       }
 
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const imagePreview = e.target.result
-        
-        if (formType === 'clothing') {
-          setClothingForm(prev => ({ ...prev, image: file, imagePreview }))
-        } else if (formType === 'pooja') {
-          setPoojaForm(prev => ({ ...prev, image: file, imagePreview }))
-        } else if (formType === 'toys') {
-          setToysForm(prev => ({ ...prev, image: file, imagePreview }))
-        }
-      }
-      reader.readAsDataURL(file)
+      // If no specific formType matched, do nothing but keep for future
     }
+
+    reader.readAsDataURL(file)
   }
 
   const uploadImageToCloudinary = async (file) => {
@@ -382,44 +448,60 @@ const Admin = () => {
   const handleClothingSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (!clothingForm.name || !clothingForm.description || !clothingForm.price || !clothingForm.image) {
-        showMessage('Please fill in all required fields including image.', true)
+      if (!clothingForm.name || !clothingForm.description || !clothingForm.price) {
+        showMessage('Please fill in all required fields.', true)
         return
       }
 
-      // Upload image and get URL
-      const imageUrl = await uploadImageToCloudinary(clothingForm.image)
-      
+      // Upload main product image and create product
       const productData = {
         name: clothingForm.name.trim(),
         category: 'clothing',
         subcategory: clothingForm.subcategory,
         description: clothingForm.description.trim(),
         price: parseFloat(clothingForm.price),
-        image_url: imageUrl,
-        size: clothingForm.size || null,
-        stock: parseInt(clothingForm.stock) || 10
+        // parent-level image/size/stock intentionally omitted
       }
-      
+
+      let createdProductId = null
+      // If editing an existing product, build a PUT payload that includes variants
       if (editingProduct && editingProduct.id) {
-        await api.updateProduct(editingProduct.id, productData)
+        // Build full update payload including variants (uploads new variant images as needed)
+        const payload = await buildProductUpdatePayload(productData, clothingColors, editingProduct)
+        await api.updateProduct(editingProduct.id, payload)
+        createdProductId = editingProduct.id
         showMessage('Clothing item updated successfully!')
         setEditingProduct(null)
       } else {
-        await api.createProduct(productData)
+        const resp = await api.createProduct(productData)
+        createdProductId = resp.id
         showMessage('Clothing item added successfully!')
+
+        // Create variants for each color (upload color images first)
+        for (let i = 0; i < clothingColors.length; i++) {
+          const c = clothingColors[i]
+          // upload color image if provided
+          let colorImageUrl = null
+          if (c.image) {
+            colorImageUrl = await uploadImageToCloudinary(c.image)
+          }
+          // build payload matching VariantCreate: { color, color_code, images: [...], sizes: [{size, stock}, ...] }
+          const variantPayload = {
+            color: c.name || 'Variant',
+            color_code: c.hex || null,
+            images: colorImageUrl ? [colorImageUrl] : [],
+            sizes: (c.sizes || []).map(s => (typeof s === 'string' ? { size: s, stock: 5 } : { size: s.size, stock: s.stock || 5 }))
+          }
+          try {
+            await adminApi.createVariant(createdProductId, variantPayload)
+          } catch (err) {
+            console.warn('Failed to create variant for color', c.name, err)
+          }
+        }
       }
       fetchProductsForTab('clothing')
-      setClothingForm({
-        name: '',
-        subcategory: 'sarees',
-        description: '',
-        price: '',
-        image: null,
-        imagePreview: '',
-        size: 'Free Size',
-        stock: 10
-      })
+  setClothingForm({ name: '', subcategory: 'sarees', description: '', price: '' })
+  setClothingColors([{ name: 'Default', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'Free Size', stock: 5 }] }])
     } catch (error) {
       console.error('Error adding product:', error)
       const errorMsg = error.response?.data?.detail || error.message || 'Error adding product. Please try again.'
@@ -427,45 +509,98 @@ const Admin = () => {
     }
   }
 
+  // Helper: build a ProductUpdate payload including variants. Uploads any newly-selected images.
+  // - productData: base product fields (name, category, subcategory, description, price, age_group)
+  // - colorsState: clothingColors array; entries may include `id`, `name`, `hex`, `image` (File), `imagePreview`, `sizes` (array of { size, stock } or strings)
+  // - existingProduct: the product object as fetched from server (used to preserve ids)
+  const buildProductUpdatePayload = async (productData, colorsState, existingProduct) => {
+    const payload = { ...productData }
+    // include variants array
+    const variants = []
+    for (let i = 0; i < (colorsState || []).length; i++) {
+      const c = colorsState[i]
+      let images = []
+      // If the admin selected a new File, upload and use its URL
+      if (c.image) {
+        try {
+          const url = await uploadImageToCloudinary(c.image)
+          if (url) images.push(url)
+        } catch (err) {
+          console.warn('Image upload failed for variant', c.name, err)
+        }
+      } else if (c.imagePreview) {
+        // existing remote URL or data URL; prefer that
+        images.push(c.imagePreview)
+      }
+
+      // Build sizes array: support sizes stored as strings or objects. Use sizeStocks if provided, otherwise default stock 5.
+      const sizes = (c.sizes || []).map(s => {
+        if (typeof s === 'string') {
+          const stock = (c.sizeStocks && c.sizeStocks[s]) ? c.sizeStocks[s] : 5
+          return { size: s, stock }
+        }
+        return { size: s.size, stock: s.stock || 5 }
+      })
+
+      const vObj = {
+        color: c.name || 'Variant',
+        color_code: c.hex || null,
+        images,
+        sizes,
+      }
+      if (c.id) vObj.id = c.id
+      variants.push(vObj)
+    }
+    payload.variants = variants
+    return payload
+  }
+
   const handlePoojaSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (!poojaForm.name || !poojaForm.description || !poojaForm.price || !poojaForm.image) {
-        showMessage('Please fill in all required fields including image.', true)
+      if (!poojaForm.name || !poojaForm.description || !poojaForm.price) {
+        showMessage('Please fill in all required fields.', true)
         return
       }
 
       // Upload image and get URL
-      const imageUrl = await uploadImageToCloudinary(poojaForm.image)
-      
       const productData = {
         name: poojaForm.name.trim(),
         category: 'pooja_items',
         subcategory: poojaForm.subcategory,
         description: poojaForm.description.trim(),
         price: parseFloat(poojaForm.price),
-        image_url: imageUrl,
-        stock: parseInt(poojaForm.stock) || 10
+        // parent-level image/stock omitted
       }
-      
+      let createdProductId = null
       if (editingProduct && editingProduct.id) {
-        await api.updateProduct(editingProduct.id, productData)
+        const payload = await buildProductUpdatePayload(productData, poojaColors, editingProduct)
+        await api.updateProduct(editingProduct.id, payload)
+        createdProductId = editingProduct.id
         showMessage('Pooja item updated successfully!')
         setEditingProduct(null)
       } else {
-        await api.createProduct(productData)
+        const resp = await api.createProduct(productData)
+        createdProductId = resp.id
         showMessage('Pooja item added successfully!')
+
+        // create variants
+        for (let i = 0; i < poojaColors.length; i++) {
+          const c = poojaColors[i]
+          let colorImageUrl = null
+          if (c.image) colorImageUrl = await uploadImageToCloudinary(c.image)
+          const variantPayload = {
+            color: c.name || 'Variant',
+            color_code: c.hex || null,
+            images: colorImageUrl ? [colorImageUrl] : [],
+            sizes: (c.sizes || []).map(s => (typeof s === 'string' ? { size: s, stock: 5 } : { size: s.size, stock: s.stock || 5 }))
+          }
+          try { await adminApi.createVariant(createdProductId, variantPayload) } catch (err) { console.warn('Failed to create variant for color', c.name, err) }
+        }
       }
       fetchProductsForTab('pooja')
-      setPoojaForm({
-        name: '',
-        subcategory: 'idols',
-        description: '',
-        price: '',
-        image: null,
-        imagePreview: '',
-        stock: 10
-      })
+      setPoojaForm({ name: '', subcategory: 'idols', description: '', price: '' })
+      setPoojaColors([{ name: 'Default', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'Free Size', stock: 5 }] }])
     } catch (error) {
       console.error('Error adding product:', error)
       const errorMsg = error.response?.data?.detail || error.message || 'Error adding product. Please try again.'
@@ -476,44 +611,48 @@ const Admin = () => {
   const handleToysSubmit = async (e) => {
     e.preventDefault()
     try {
-      if (!toysForm.name || !toysForm.description || !toysForm.price || !toysForm.image) {
-        showMessage('Please fill in all required fields including image.', true)
+      if (!toysForm.name || !toysForm.description || !toysForm.price) {
+        showMessage('Please fill in all required fields.', true)
         return
       }
 
       // Upload image and get URL
-      const imageUrl = await uploadImageToCloudinary(toysForm.image)
-      
       const productData = {
         name: toysForm.name.trim(),
         category: 'toys',
         subcategory: toysForm.subcategory,
         description: toysForm.description.trim(),
         price: parseFloat(toysForm.price),
-        image_url: imageUrl,
-        age_group: toysForm.age_group || null,
-        stock: parseInt(toysForm.stock) || 10
+        age_group: toysForm.age_group || null
       }
-      
+      let createdProductId = null
       if (editingProduct && editingProduct.id) {
-        await api.updateProduct(editingProduct.id, productData)
+        const payload = await buildProductUpdatePayload(productData, toysColors, editingProduct)
+        await api.updateProduct(editingProduct.id, payload)
+        createdProductId = editingProduct.id
         showMessage('Toy updated successfully!')
         setEditingProduct(null)
       } else {
-        await api.createProduct(productData)
+        const resp = await api.createProduct(productData)
+        createdProductId = resp.id
         showMessage('Toy added successfully!')
+
+        for (let i = 0; i < toysColors.length; i++) {
+          const c = toysColors[i]
+          let colorImageUrl = null
+          if (c.image) colorImageUrl = await uploadImageToCloudinary(c.image)
+          const variantPayload = {
+            color: c.name || 'Variant',
+            color_code: c.hex || null,
+            images: colorImageUrl ? [colorImageUrl] : [],
+            sizes: (c.sizes || []).map(s => (typeof s === 'string' ? { size: s, stock: 5 } : { size: s.size, stock: s.stock || 5 }))
+          }
+          try { await adminApi.createVariant(createdProductId, variantPayload) } catch (err) { console.warn('Failed to create variant for color', c.name, err) }
+        }
       }
       fetchProductsForTab('toys')
-      setToysForm({
-        name: '',
-        subcategory: 'educational',
-        description: '',
-        price: '',
-        image: null,
-        imagePreview: '',
-        age_group: '5-10',
-        stock: 10
-      })
+      setToysForm({ name: '', subcategory: 'educational', description: '', price: '', age_group: '5-10' })
+      setToysColors([{ name: 'Default', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'Free Size', stock: 5 }] }])
     } catch (error) {
       console.error('Error adding product:', error)
       const errorMsg = error.response?.data?.detail || error.message || 'Error adding product. Please try again.'
@@ -575,7 +714,7 @@ const Admin = () => {
                 {productsList.map(p => (
                   <div key={p.id} className="admin-product-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid #f0f0f0' }}>
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                      <img src={p.image_url || 'https://via.placeholder.com/80'} alt={p.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
+                      <img src={(p.images && p.images[0]) || 'https://via.placeholder.com/80'} alt={p.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
                       <div>
                         <strong>{p.name}</strong>
                         <div style={{ color: '#666', fontSize: 13 }}>{p.subcategory} • ₹{p.price}</div>
@@ -617,18 +756,6 @@ const Admin = () => {
                       ))}
                     </select>
                   </div>
-                  <div className="form-group">
-                    <label>Size *</label>
-                    <select
-                      required
-                      value={clothingForm.size}
-                      onChange={(e) => setClothingForm({ ...clothingForm, size: e.target.value })}
-                    >
-                      {clothingSizes.map(size => (
-                        <option key={size} value={size}>{size}</option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
                 <div className="form-group">
                   <label>Description *</label>
@@ -653,50 +780,61 @@ const Admin = () => {
                       placeholder="0.00"
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Stock *</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={clothingForm.stock}
-                      onChange={(e) => setClothingForm({ ...clothingForm, stock: e.target.value })}
-                    />
-                  </div>
+                  {/* parent stock removed */}
                 </div>
+                {/* parent product image removed - upload per-variant instead */}
                 <div className="form-group">
-                  <label>Product Image *</label>
-                  <div className="image-upload-container">
-                    <input
-                      type="file"
-                      id="clothing-image"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files[0], 'clothing')}
-                      className="image-input"
-                    />
-                    <label htmlFor="clothing-image" className="image-upload-label">
-                      {clothingForm.imagePreview ? (
-                        <div className="image-preview-container">
-                          <img src={clothingForm.imagePreview} alt="Preview" className="image-preview" />
-                          <div className="image-overlay">
-                            <span>Click to change image</span>
+                  <label>Colors & Variants</label>
+                  <div className="colors-list">
+                    {clothingColors.map((c, idx) => (
+                      <div key={idx} className="color-row">
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <input type="text" value={c.name} onChange={(e) => setClothingColors(prev => { const p = [...prev]; p[idx].name = e.target.value; return p })} placeholder="Color name (e.g. Red)" />
+                          <input type="color" value={c.hex} onChange={(e) => setClothingColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} title="Color hex" />
+                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `clothing-color-${idx}`)} />
+                          {c.imagePreview ? <img src={c.imagePreview} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} /> : null}
+                          <button type="button" className="btn btn-ghost" onClick={() => setClothingColors(prev => { const p = [...prev]; p.splice(idx,1); return p })}>Remove</button>
+                        </div>
+                        <div style={{ marginTop:8 }}>
+                          <label style={{ fontSize:13, color:'#666' }}>Sizes</label>
+                          <div style={{ display:'flex', gap:8, marginTop:6, alignItems: 'center' }}>
+                            {clothingSizes.map(sz => {
+                              const active = c.sizes && c.sizes.find(o => o.size === sz)
+                              return (
+                                <div key={sz} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <button type="button" className={`size-pill ${active ? 'active' : ''}`} onClick={() => setClothingColors(prev => {
+                                    const p = [...prev];
+                                    const cur = p[idx] || {};
+                                    const existing = Array.isArray(cur.sizes) ? cur.sizes.slice() : [];
+                                    const fi = existing.findIndex(o => o.size === sz);
+                                    if (fi !== -1) existing.splice(fi, 1); else existing.push({ size: sz, stock: 5 });
+                                    p[idx] = { ...cur, sizes: existing };
+                                    return p;
+                                  })}>{sz}</button>
+                                  {active ? (
+                                    <input type="number" min="0" value={active.stock} onChange={(e) => setClothingColors(prev => {
+                                      const p = [...prev];
+                                      const cur = p[idx] || {};
+                                      const existing = (cur.sizes || []).map(o => ({ ...o }));
+                                      const fi = existing.findIndex(o => o.size === sz);
+                                      if (fi !== -1) existing[fi].stock = parseInt(e.target.value || '0', 10);
+                                      p[idx] = { ...cur, sizes: existing };
+                                      return p;
+                                    })} style={{ width: 64, padding: '4px 6px', borderRadius: 4, border: '1px solid #ddd' }} />
+                                  ) : null}
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
-                      ) : (
-                        <div className="image-placeholder">
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14.2 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14.2 2Z" fill="#D4AF37" opacity="0.2"/>
-                            <path d="M14 2V8H20" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M14.2 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14.2 2Z" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M8 12L10.5 14.5L16 9" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          <span>Click to upload image</span>
-                          <small>PNG, JPG, GIF up to 5MB</small>
-                        </div>
-                      )}
-                    </label>
+                      </div>
+                    ))}
+                    <div style={{ marginTop: 10 }}>
+                      <button type="button" className="btn btn-outline" onClick={() => setClothingColors(prev => ([...prev, { name: 'New', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'S', stock: 5 }] }]))}>Add Color</button>
+                    </div>
                   </div>
                 </div>
+
                 <button type="submit" className="btn btn-primary">Add Clothing Item</button>
               </form>
             </div>
@@ -729,16 +867,6 @@ const Admin = () => {
                       ))}
                     </select>
                   </div>
-                  <div className="form-group">
-                    <label>Stock *</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={poojaForm.stock}
-                      onChange={(e) => setPoojaForm({ ...poojaForm, stock: e.target.value })}
-                    />
-                  </div>
                 </div>
                 <div className="form-group">
                   <label>Description *</label>
@@ -762,39 +890,43 @@ const Admin = () => {
                     placeholder="0.00"
                   />
                 </div>
+                {/* variant UI (colors & sizes) - same as clothing */}
                 <div className="form-group">
-                  <label>Product Image *</label>
-                  <div className="image-upload-container">
-                    <input
-                      type="file"
-                      id="pooja-image"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files[0], 'pooja')}
-                      className="image-input"
-                    />
-                    <label htmlFor="pooja-image" className="image-upload-label">
-                      {poojaForm.imagePreview ? (
-                        <div className="image-preview-container">
-                          <img src={poojaForm.imagePreview} alt="Preview" className="image-preview" />
-                          <div className="image-overlay">
-                            <span>Click to change image</span>
+                  <label>Colors & Variants</label>
+                  <div className="colors-list">
+                    {poojaColors.map((c, idx) => (
+                      <div key={idx} className="color-row">
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <input type="text" value={c.name} onChange={(e) => setPoojaColors(prev => { const p = [...prev]; p[idx].name = e.target.value; return p })} placeholder="Color name (e.g. Red)" />
+                          <input type="color" value={c.hex} onChange={(e) => setPoojaColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} title="Color hex" />
+                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `pooja-color-${idx}`)} />
+                          {c.imagePreview ? <img src={c.imagePreview} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} /> : null}
+                          <button type="button" className="btn btn-ghost" onClick={() => setPoojaColors(prev => { const p = [...prev]; p.splice(idx,1); return p })}>Remove</button>
+                        </div>
+                        <div style={{ marginTop:8 }}>
+                          <label style={{ fontSize:13, color:'#666' }}>Sizes</label>
+                          <div style={{ display:'flex', gap:8, marginTop:6, alignItems: 'center' }}>
+                            {clothingSizes.map(sz => {
+                              const active = c.sizes && c.sizes.find(o => o.size === sz)
+                              return (
+                                <div key={sz} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <button type="button" className={`size-pill ${active ? 'active' : ''}`} onClick={() => setPoojaColors(prev => { const p = [...prev]; const cur = p[idx] || {}; const existing = Array.isArray(cur.sizes) ? cur.sizes.slice() : []; const fi = existing.findIndex(o => o.size === sz); if (fi !== -1) existing.splice(fi, 1); else existing.push({ size: sz, stock: 5 }); p[idx] = { ...cur, sizes: existing }; return p })}>{sz}</button>
+                                  {active ? (
+                                    <input type="number" min="0" value={active.stock} onChange={(e) => setPoojaColors(prev => { const p = [...prev]; const cur = p[idx] || {}; const existing = (cur.sizes || []).map(o => ({ ...o })); const fi = existing.findIndex(o => o.size === sz); if (fi !== -1) existing[fi].stock = parseInt(e.target.value || '0', 10); p[idx] = { ...cur, sizes: existing }; return p })} style={{ width: 64, padding: '4px 6px', borderRadius: 4, border: '1px solid #ddd' }} />
+                                  ) : null}
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
-                      ) : (
-                        <div className="image-placeholder">
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14.2 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14.2 2Z" fill="#D4AF37" opacity="0.2"/>
-                            <path d="M14 2V8H20" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M14.2 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14.2 2Z" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M8 12L10.5 14.5L16 9" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          <span>Click to upload image</span>
-                          <small>PNG, JPG, GIF up to 5MB</small>
-                        </div>
-                      )}
-                    </label>
+                      </div>
+                    ))}
+                    <div style={{ marginTop: 10 }}>
+                      <button type="button" className="btn btn-outline" onClick={() => setPoojaColors(prev => ([...prev, { name: 'New', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'S', stock: 5 }] }]))}>Add Color</button>
+                    </div>
                   </div>
                 </div>
+
                 <button type="submit" className="btn btn-primary">Add Pooja Item</button>
               </form>
             </div>
@@ -827,18 +959,6 @@ const Admin = () => {
                       ))}
                     </select>
                   </div>
-                  <div className="form-group">
-                    <label>Age Group *</label>
-                    <select
-                      required
-                      value={toysForm.age_group}
-                      onChange={(e) => setToysForm({ ...toysForm, age_group: e.target.value })}
-                    >
-                      {toysAgeGroups.map(age => (
-                        <option key={age} value={age}>{age}</option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
                 <div className="form-group">
                   <label>Description *</label>
@@ -849,6 +969,44 @@ const Admin = () => {
                     rows="3"
                     placeholder="Product description..."
                   />
+                </div>
+                <div className="form-row">
+                  {/* variant UI (colors & sizes) - same as clothing */}
+                  <div className="form-group">
+                    <label>Colors & Variants</label>
+                    <div className="colors-list">
+                      {toysColors.map((c, idx) => (
+                        <div key={idx} className="color-row">
+                          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                            <input type="text" value={c.name} onChange={(e) => setToysColors(prev => { const p = [...prev]; p[idx].name = e.target.value; return p })} placeholder="Color name (e.g. Red)" />
+                            <input type="color" value={c.hex} onChange={(e) => setToysColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} title="Color hex" />
+                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `toys-color-${idx}`)} />
+                            {c.imagePreview ? <img src={c.imagePreview} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} /> : null}
+                            <button type="button" className="btn btn-ghost" onClick={() => setToysColors(prev => { const p = [...prev]; p.splice(idx,1); return p })}>Remove</button>
+                          </div>
+                          <div style={{ marginTop:8 }}>
+                            <label style={{ fontSize:13, color:'#666' }}>Sizes</label>
+                            <div style={{ display:'flex', gap:8, marginTop:6, alignItems: 'center' }}>
+                              {clothingSizes.map(sz => {
+                                const active = c.sizes && c.sizes.find(o => o.size === sz)
+                                return (
+                                  <div key={sz} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <button type="button" className={`size-pill ${active ? 'active' : ''}`} onClick={() => setToysColors(prev => { const p = [...prev]; const cur = p[idx] || {}; const existing = Array.isArray(cur.sizes) ? cur.sizes.slice() : []; const fi = existing.findIndex(o => o.size === sz); if (fi !== -1) existing.splice(fi, 1); else existing.push({ size: sz, stock: 5 }); p[idx] = { ...cur, sizes: existing }; return p })}>{sz}</button>
+                                    {active ? (
+                                      <input type="number" min="0" value={active.stock} onChange={(e) => setToysColors(prev => { const p = [...prev]; const cur = p[idx] || {}; const existing = (cur.sizes || []).map(o => ({ ...o })); const fi = existing.findIndex(o => o.size === sz); if (fi !== -1) existing[fi].stock = parseInt(e.target.value || '0', 10); p[idx] = { ...cur, sizes: existing }; return p })} style={{ width: 64, padding: '4px 6px', borderRadius: 4, border: '1px solid #ddd' }} />
+                                    ) : null}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div style={{ marginTop: 10 }}>
+                        <button type="button" className="btn btn-outline" onClick={() => setToysColors(prev => ([...prev, { name: 'New', hex: '#cccccc', image: null, imagePreview: '', sizes: [{ size: 'S', stock: 5 }] }]))}>Add Color</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
@@ -864,49 +1022,15 @@ const Admin = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Stock *</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={toysForm.stock}
-                      onChange={(e) => setToysForm({ ...toysForm, stock: e.target.value })}
-                    />
+                    <label>Age Group</label>
+                    <select value={toysForm.age_group} onChange={(e) => setToysForm({ ...toysForm, age_group: e.target.value })}>
+                      {toysAgeGroups.map(g => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label>Product Image *</label>
-                  <div className="image-upload-container">
-                    <input
-                      type="file"
-                      id="toys-image"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files[0], 'toys')}
-                      className="image-input"
-                    />
-                    <label htmlFor="toys-image" className="image-upload-label">
-                      {toysForm.imagePreview ? (
-                        <div className="image-preview-container">
-                          <img src={toysForm.imagePreview} alt="Preview" className="image-preview" />
-                          <div className="image-overlay">
-                            <span>Click to change image</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="image-placeholder">
-                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14.2 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14.2 2Z" fill="#D4AF37" opacity="0.2"/>
-                            <path d="M14 2V8H20" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M14.2 2H6C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14.2 2Z" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M8 12L10.5 14.5L16 9" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          <span>Click to upload image</span>
-                          <small>PNG, JPG, GIF up to 5MB</small>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                </div>
+                {/* Toys use per-variant images; product-level image upload removed */}
                 <button type="submit" className="btn btn-primary">Add Toy</button>
               </form>
             </div>

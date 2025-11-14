@@ -17,6 +17,11 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeImage, setActiveImage] = useState(null)
+  const [availableColors, setAvailableColors] = useState([])
+  const [selectedColor, setSelectedColor] = useState(null)
+  const [variants, setVariants] = useState([])
+  const [selectedVariant, setSelectedVariant] = useState(null)
+  const [selectedSize, setSelectedSize] = useState(null)
   const [qty, setQty] = useState(1)
   const [tab, setTab] = useState('description')
   const mainImgRef = useRef(null)
@@ -53,10 +58,39 @@ const ProductDetail = () => {
         specs: { Material: 'Cotton', Size: 'Standard' },
         reviews: []
       }
-      // normalize images array
-      if (!p.images) p.images = p.image_url ? [p.image_url] : []
+  // normalize images array
+  if (!p.images) p.images = []
+
+      // Prefer modern `variants` model (variants: [{id, color, color_code, images: [], sizes: []}])
+      if (p.variants && Array.isArray(p.variants) && p.variants.length > 0) {
+        setVariants(p.variants)
+        setSelectedVariant(p.variants[0])
+        setSelectedSize((p.variants[0].sizes && p.variants[0].sizes[0] && p.variants[0].sizes[0].size) || null)
+        setAvailableColors(p.variants.map(v => ({ name: v.color, hex: v.color_code, images: v.images })))
+        setSelectedColor({ name: p.variants[0].color, hex: p.variants[0].color_code, images: p.variants[0].images })
+  setActiveImage((p.variants[0].images && p.variants[0].images[0]) || p.images[0] || null)
+      } else {
+        // If product has colors (legacy), normalize structure:
+        // product.colors = [{ name: 'Red', hex: '#ff0000', images: [...] }, ...]
+        if (p.category === 'clothing' && !p.colors) {
+          // attempt to infer a single default color from main image
+          p.colors = null
+        }
+      }
+
       setProduct(p)
-      setActiveImage((p.images && p.images[0]) || p.image_url || null)
+      // If colors provided, use first color's first image as active image
+      if (!p.variants || p.variants.length === 0) {
+          if (p.colors && Array.isArray(p.colors) && p.colors.length > 0) {
+          setAvailableColors(p.colors)
+          setSelectedColor(p.colors[0])
+          setActiveImage((p.colors[0].images && p.colors[0].images[0]) || p.images[0] || null)
+        } else {
+          setAvailableColors([])
+          setSelectedColor(null)
+          setActiveImage((p.images && p.images[0]) || null)
+        }
+      }
       // fetch server reviews if available
       ;(async () => {
         try {
@@ -97,7 +131,18 @@ const ProductDetail = () => {
 
   const handleAdd = () => {
     if (!product) return
-    addToCart({ ...product, quantity: qty })
+    const payload = { ...product, quantity: qty }
+    if (selectedColor) payload.selectedColor = { name: selectedColor.name, hex: selectedColor.hex }
+    if (activeImage) payload.selectedImage = activeImage
+    if (selectedVariant) {
+      payload.variant_id = selectedVariant.id
+      payload.variant_color = selectedVariant.color
+      // if sizes exist, prefer the UI-selected size; fallback to first size
+      if (selectedVariant.sizes && selectedVariant.sizes.length > 0) {
+        payload.selectedSize = selectedSize || (selectedVariant.sizes[0] && selectedVariant.sizes[0].size) || null
+      }
+    }
+    addToCart(payload)
     // small, non-blocking feedback
     const prev = document.activeElement
     alert('Added to cart')
@@ -178,7 +223,7 @@ const ProductDetail = () => {
                 )}
               </div>
               <div className="thumbs">
-                {(product.images || []).slice(0,5).map((src, i) => (
+                {((selectedVariant && selectedVariant.images) ? selectedVariant.images : ((selectedColor && selectedColor.images) ? selectedColor.images : (product.images || []))).slice(0,5).map((src, i) => (
                   <button
                     key={i}
                     type="button"
@@ -213,6 +258,66 @@ const ProductDetail = () => {
 
               <p className="pd-desc">{product.description}</p>
 
+              {/* Color selector shown first (full-width) - show whenever availableColors populated */}
+              {availableColors && availableColors.length > 0 && (
+                <div className="color-selector-block">
+                  <label className="color-label">Color</label>
+                  <div className="swatches" role="list">
+                    {availableColors.map((c, idx) => (
+                      <button
+                        key={c.name + idx}
+                        type="button"
+                        className={`swatch ${selectedColor && selectedColor.name === c.name ? 'active' : ''}`}
+                        onClick={() => {
+                            setSelectedColor(c)
+                            if (variants && variants.length) {
+                              const v = variants.find((vv) => vv.color === c.name)
+                              if (v) {
+                                setSelectedVariant(v)
+                                setSelectedSize((v.sizes && v.sizes[0] && v.sizes[0].size) || null)
+                              } else {
+                                setSelectedVariant(null)
+                                setSelectedSize(null)
+                              }
+                              const img = (v && v.images && v.images[0]) || (c.images && c.images[0]) || (product.images && product.images[0])
+                              setActiveImage(img)
+                            } else {
+                              const img = (c.images && c.images[0]) || (product.images && product.images[0])
+                              setActiveImage(img)
+                              setSelectedVariant(null)
+                              setSelectedSize(null)
+                            }
+                          }}
+                        style={{ borderColor: selectedColor && selectedColor.name === c.name ? 'rgba(212,175,55,0.9)' : undefined }}
+                        aria-label={`Select color ${c.name}`}
+                      >
+                        <span className="swatch-circle" style={{ background: c.hex || '#ccc' }} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Size selector (shows when variant has sizes) */}
+              {selectedVariant && selectedVariant.sizes && selectedVariant.sizes.length > 0 && (
+                <div className="size-selector">
+                  <label className="size-label">Size</label>
+                  <div className="sizes" role="list">
+                    {selectedVariant.sizes.map((s, idx) => (
+                      <button
+                        key={s.size + idx}
+                        type="button"
+                        className={`size-btn ${selectedSize === s.size ? 'active' : ''}`}
+                        onClick={() => setSelectedSize(s.size)}
+                        aria-label={`Select size ${s.size}`}
+                      >
+                        {s.size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="pd-actions">
                 <div className="qty">
                   <button className="qty-btn" onClick={() => changeQty(-1)} aria-label="Decrease quantity">-</button>
@@ -221,7 +326,7 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="actions-right">
-                  <button className="add-btn" onClick={handleAdd}>Add to Cart</button>
+                  <button className="add-btn" onClick={() => handleAdd()}>Add to Cart</button>
                   <div className="icon-row">
                       <button className="icon-btn" aria-label="Add to wishlist">
                         <Heart size={16} color="#111" />

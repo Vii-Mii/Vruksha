@@ -296,6 +296,12 @@
   flex-direction: column;
 }
 
+.colors-list { display:flex; flex-direction:column; gap:12px }
+.color-row { background:#fff; border:1px solid #f3f3f3; padding:10px; border-radius:8px }
+.size-pill { padding:6px 10px; border-radius:6px; border:1px solid #eee; background:white; cursor:pointer }
+.size-pill.active { background: linear-gradient(90deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06)); border-color: rgba(212,175,55,0.28) }
+.colors-list img { border-radius:6px }
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

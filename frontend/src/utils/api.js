@@ -146,6 +146,13 @@ adminApi.demoteUser = async (userId) => {
   return response.data
 }
 
+adminApi.createVariant = async (productId, payload) => {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.post(`${API_BASE_URL}/admin/products/${productId}/variants`, payload, { headers })
+  return response.data
+}
+
 // Cart endpoints
 export const cartApi = {
   getCart: async (token) => {

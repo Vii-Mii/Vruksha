@@ -59,10 +59,16 @@ const Orders = () => {
         {items.map((it, idx) => (
           <div key={idx} className="order-item-row">
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <img src={it.image_url || 'https://via.placeholder.com/80'} alt={it.name} className="order-item-thumb" />
+              <img src={(it.images && it.images[0]) || it.selectedImage || 'https://via.placeholder.com/80'} alt={it.name} className="order-item-thumb" />
               <div>
                 <strong className="order-item-title">{it.name}</strong>
                 <div className="order-item-sub muted">{(it.subcategory || '')} • ₹{it.price}</div>
+                {it.selectedColor && (
+                  <div style={{ marginTop: 6 }}><span style={{ display: 'inline-block', width: 12, height: 12, background: it.selectedColor.hex || '#ccc', borderRadius: 4, marginRight: 8, verticalAlign: 'middle' }} />{it.selectedColor.name}</div>
+                )}
+                {!it.selectedColor && it.variant_color && (
+                  <div style={{ marginTop: 6 }}>Color: {it.variant_color}</div>
+                )}
               </div>
             </div>
             <div className="order-item-right">

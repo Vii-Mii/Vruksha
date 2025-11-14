@@ -24,12 +24,12 @@ const ToysStore = () => {
         console.error('Error fetching products:', error)
         // Fallback data
         const fallback = [
-          { id: 1, name: 'STEM Building Blocks', category: 'toys', subcategory: 'educational', description: 'Educational building blocks for creative learning', price: 899, image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', age_group: '5-10' },
-          { id: 2, name: 'Remote Control Car', category: 'toys', subcategory: 'rc_cars', description: 'High-speed RC car with remote control', price: 1299, image_url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400', age_group: '8+' },
-          { id: 3, name: 'Chess Board Set', category: 'toys', subcategory: 'board_games', description: 'Premium wooden chess board with pieces', price: 599, image_url: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=400', age_group: '10+' },
-          { id: 4, name: 'Soft Teddy Bear', category: 'toys', subcategory: 'soft_toys', description: 'Cuddly soft teddy bear - perfect gift', price: 499, image_url: 'https://images.unsplash.com/photo-1530325551448-e3bfad6e1e0a?w=400', age_group: '0+' },
-          { id: 5, name: 'Puzzle Set - 1000 Pieces', category: 'toys', subcategory: 'board_games', description: 'Challenging 1000-piece jigsaw puzzle', price: 699, image_url: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400', age_group: '12+' },
-          { id: 6, name: 'Action Figure Set', category: 'toys', subcategory: 'action_figures', description: 'Collection of superhero action figures', price: 899, image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', age_group: '6+' },
+          { id: 1, name: 'STEM Building Blocks', category: 'toys', subcategory: 'educational', description: 'Educational building blocks for creative learning', price: 899, images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'], age_group: '5-10' },
+          { id: 2, name: 'Remote Control Car', category: 'toys', subcategory: 'rc_cars', description: 'High-speed RC car with remote control', price: 1299, images: ['https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400'], age_group: '8+' },
+          { id: 3, name: 'Chess Board Set', category: 'toys', subcategory: 'board_games', description: 'Premium wooden chess board with pieces', price: 599, images: ['https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=400'], age_group: '10+' },
+          { id: 4, name: 'Soft Teddy Bear', category: 'toys', subcategory: 'soft_toys', description: 'Cuddly soft teddy bear - perfect gift', price: 499, images: ['https://images.unsplash.com/photo-1530325551448-e3bfad6e1e0a?w=400'], age_group: '0+' },
+          { id: 5, name: 'Puzzle Set - 1000 Pieces', category: 'toys', subcategory: 'board_games', description: 'Challenging 1000-piece jigsaw puzzle', price: 699, images: ['https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400'], age_group: '12+' },
+          { id: 6, name: 'Action Figure Set', category: 'toys', subcategory: 'action_figures', description: 'Collection of superhero action figures', price: 899, images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'], age_group: '6+' },
         ]
         setProducts(fallback)
         setFilteredProducts(fallback)
@@ -140,7 +140,7 @@ const ToysStore = () => {
                 <div key={product.id} className="product-card card">
                   <Link to={`/product/${product.id}`} className="product-link">
                     <div className="product-image">
-                      <img src={product.image_url || 'https://via.placeholder.com/300'} alt={product.name} />
+                      <img src={(product.images && product.images[0]) || 'https://via.placeholder.com/300'} alt={product.name} />
                     </div>
                     <div className="product-info">
                       <h3>{product.name}</h3>

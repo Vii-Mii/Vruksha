@@ -25,12 +25,12 @@ const ClothingStore = () => {
         console.error('Error fetching products:', error)
         // Fallback data
         const fallback = [
-          { id: 1, name: 'Silk Saree - Traditional Red', category: 'clothing', subcategory: 'sarees', description: 'Beautiful traditional red silk saree with golden border', price: 3500, image_url: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', size: 'Free Size' },
-          { id: 2, name: 'Designer Kurti Set - Blue', category: 'clothing', subcategory: 'kurtis', description: 'Elegant blue designer kurti with matching dupatta', price: 1800, image_url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400', size: 'M' },
-          { id: 3, name: 'Anarkali Suit - Pink', category: 'clothing', subcategory: 'ethnic_wear', description: 'Stylish pink anarkali suit with intricate embroidery', price: 2500, image_url: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400', size: 'L' },
-          { id: 4, name: 'Western Dress - Floral', category: 'clothing', subcategory: 'western', description: 'Modern floral print western dress', price: 1200, image_url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400', size: 'M' },
-          { id: 5, name: 'Banarasi Saree - Green', category: 'clothing', subcategory: 'sarees', description: 'Luxurious Banarasi silk saree in emerald green', price: 4500, image_url: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', size: 'Free Size' },
-          { id: 6, name: 'Kurta Set - White', category: 'clothing', subcategory: 'kurtis', description: 'Elegant white kurta with embroidered details', price: 1500, image_url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400', size: 'S' },
+          { id: 1, name: 'Silk Saree - Traditional Red', category: 'clothing', subcategory: 'sarees', description: 'Beautiful traditional red silk saree with golden border', price: 3500, images: ['https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400'], size: 'Free Size' },
+          { id: 2, name: 'Designer Kurti Set - Blue', category: 'clothing', subcategory: 'kurtis', description: 'Elegant blue designer kurti with matching dupatta', price: 1800, images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400'], size: 'M' },
+          { id: 3, name: 'Anarkali Suit - Pink', category: 'clothing', subcategory: 'ethnic_wear', description: 'Stylish pink anarkali suit with intricate embroidery', price: 2500, images: ['https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400'], size: 'L' },
+          { id: 4, name: 'Western Dress - Floral', category: 'clothing', subcategory: 'western', description: 'Modern floral print western dress', price: 1200, images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400'], size: 'M' },
+          { id: 5, name: 'Banarasi Saree - Green', category: 'clothing', subcategory: 'sarees', description: 'Luxurious Banarasi silk saree in emerald green', price: 4500, images: ['https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400'], size: 'Free Size' },
+          { id: 6, name: 'Kurta Set - White', category: 'clothing', subcategory: 'kurtis', description: 'Elegant white kurta with embroidered details', price: 1500, images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400'], size: 'S' },
         ]
         setProducts(fallback)
         setFilteredProducts(fallback)
@@ -159,14 +159,14 @@ const ClothingStore = () => {
                 <div key={product.id} className="product-card card">
                   <Link to={`/product/${product.id}`} className="product-link">
                     <div className="product-image">
-                      <img src={product.image_url || 'https://via.placeholder.com/300'} alt={product.name} />
+                      <img src={(product.images && product.images[0]) || 'https://via.placeholder.com/300'} alt={product.name} />
                     </div>
                     <div className="product-info">
                       <h3>{product.name}</h3>
                       <p className="product-category">{product.subcategory}</p>
                       <p className="product-description">{product.description}</p>
                       <div className="product-meta">
-                        <span className="product-size">Size: {product.size}</span>
+                        <span className="product-size">Size: {product.selectedSize || (product.variants && product.variants[0] && product.variants[0].sizes && product.variants[0].sizes[0] ? product.variants[0].sizes[0].size : product.size)}</span>
                       </div>
                     </div>
                   </Link>

@@ -79,10 +79,13 @@ const Cart = () => {
             {cart.map((item, index) => (
               <div key={`${item.id}-${item.size || 'default'}-${index}`} className="cart-item card">
                 <div className="cart-item-image">
-                  <img src={item.image_url || 'https://via.placeholder.com/150'} alt={item.name} />
+                  <img src={item.selectedImage || item.image_url || 'https://via.placeholder.com/150'} alt={item.name} />
                 </div>
                 <div className="cart-item-details">
                   <h3>{item.name}</h3>
+                  {item.selectedColor && (
+                    <p className="item-color">Color: <span className="color-swatch" style={{ display: 'inline-block', width: 12, height: 12, background: item.selectedColor.hex || item.color || '#ccc', borderRadius: 4, marginRight: 8, verticalAlign: 'middle' }} />{item.selectedColor.name}</p>
+                  )}
                   {item.size && <p className="item-size">Size: {item.size}</p>}
                   <p className="item-price">₹{item.price}</p>
                 </div>

@@ -135,21 +135,25 @@ const PoojaServices = () => {
               {products.length > 0 ? (
                 products.map((product) => (
                   <div key={product.id} className="product-card card compact-card">
-                    <div className="product-image">
-                      <img src={product.image_url || 'https://via.placeholder.com/300'} alt={product.name} />
-                    </div>
-                    <div className="product-info">
-                      <h3>{product.name}</h3>
-                      <p className="product-description">{product.description}</p>
-                      <div className="product-footer">
-                        <span className="price">₹{product.price}</span>
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          Add to Cart
-                        </button>
+                    <Link to={`/product/${product.id}`} className="product-link">
+                      <div className="product-image">
+                        <img src={(product.images && product.images[0]) || 'https://via.placeholder.com/300'} alt={product.name} />
                       </div>
+                      <div className="product-info">
+                        <h3>{product.name}</h3>
+                        <p className="product-description">{product.description}</p>
+                        <div className="product-footer">
+                          <span className="price">₹{product.price}</span>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="product-footer">
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handleAddToCart(product)}
+                      >
+                        Add to Cart
+                      </button>
                     </div>
                   </div>
                 ))

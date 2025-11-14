@@ -318,6 +318,10 @@ const Checkout = () => {
                 <div key={`${item.id}-${item.size || 'default'}-${index}`} className="order-item">
                   <div className="order-item-info">
                     <h4>{item.name}</h4>
+                    {item.selectedColor && (
+                      <p className="order-item-variant">Color: <span style={{ display: 'inline-block', width: 12, height: 12, background: item.selectedColor.hex || '#ccc', borderRadius: 4, marginRight: 8, verticalAlign: 'middle' }} />{item.selectedColor.name}</p>
+                    )}
+                    {item.variant_color && !item.selectedColor && <p className="order-item-variant">Color: {item.variant_color}</p>}
                     {item.size && <p className="order-item-size">Size: {item.size}</p>}
                     <p className="order-item-qty">Qty: {item.quantity}</p>
                   </div>

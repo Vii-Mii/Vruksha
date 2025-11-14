@@ -1,6 +1,8 @@
 import axios from 'axios'
 
 const API_BASE_URL = 'http://localhost:8000/api'
+// Backend origin (used to prefix relative static paths returned by the backend)
+export const BACKEND_ORIGIN = API_BASE_URL.replace(/\/api$/,'')
 
 export const api = {
   getProducts: async (category = null) => {

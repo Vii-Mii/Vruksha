@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { api } from '../utils/api'
+import { api, BACKEND_ORIGIN } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { Link } from 'react-router-dom'
@@ -16,7 +16,22 @@ const Wishlist = () => {
       const token = localStorage.getItem('token')
       try {
         const data = await api.getWishlist(token)
-        setItems(data || [])
+        const resolved = await Promise.all((data || []).map(async (it) => {
+          // If wishlist stores just an id or a primitive, fetch product details
+          const id = (typeof it === 'number' || typeof it === 'string') ? it : (it && (it.id || it.product_id))
+          if (id && (!it || (typeof it !== 'object') || (!it.image_url && !(it.images && it.images.length) && !it.selectedImage))) {
+            try {
+              const p = await api.getProduct(id)
+              // keep original object shape if it was an object, but favor product fields
+              return { ...(typeof it === 'object' ? it : {}), id: p.id, name: p.name, price: p.price, description: p.description, images: p.images || [] }
+            } catch (err) {
+              // failed to fetch product; return original
+              return it
+            }
+          }
+          return it
+        }))
+        setItems(resolved || [])
       } catch (err) {
         console.error('Failed to load wishlist', err)
       }
@@ -63,7 +78,14 @@ const Wishlist = () => {
             return (
               <div key={id || idx} className="admin-product-row">
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <img src={(it.image_url || (it.images && it.images[0]) || it.selectedImage) || 'https://via.placeholder.com/80'} alt={it.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
+                  <img src={(function(){
+                    let raw = (it.image_url || (it.images && it.images[0]) || it.selectedImage)
+                    if (!raw) return 'https://via.placeholder.com/80'
+                    // Normalize leading static path variants
+                    if (raw.startsWith('/static/')) return `${BACKEND_ORIGIN}${raw}`
+                    if (raw.startsWith('static/')) return `${BACKEND_ORIGIN}/${raw}`
+                    return raw
+                  })()} alt={it.name || 'Product'} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
                   <div>
                     <strong>{it.name}</strong>
                     <div style={{ color: '#666', fontSize: 13 }}>{(it.subcategory || it.category || '')} • ₹{(Number(it.price || 0)).toFixed(2)}</div>

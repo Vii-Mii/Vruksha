@@ -33,6 +33,7 @@ import hashlib
 import logging
 import urllib.parse
 import io
+import html
 
 # Cloudinary optional integration
 try:
@@ -462,7 +463,11 @@ def create_admin_notification(db: Session, n_type: str, ref_id: Optional[int], t
 
 
 def send_email(
-    to_email: str, subject: str, body: str, from_email: Optional[str] = None
+    to_email: str,
+    subject: str,
+    body: str,
+    from_email: Optional[str] = None,
+    html: Optional[str] = None,
 ):
     """Send a simple plain-text email using SMTP. Reads SMTP config from env vars.
     If SMTP_HOST is not set, the function will raise an exception.
@@ -482,7 +487,12 @@ def send_email(
     msg["Subject"] = subject
     msg["From"] = from_email or user
     msg["To"] = to_email
+    # Plain-text fallback body
     msg.set_content(body)
+    # If HTML provided, attach as an alternative part so clients render it when possible
+    if html:
+        # Use a minimal, inline-styled HTML alternative for better visual emails.
+        msg.add_alternative(html, subtype="html")
 
     # Use SSL if port 465, otherwise use STARTTLS if configured
     try:
@@ -517,12 +527,45 @@ def send_admin_notification(subject: str, body: str, from_email: Optional[str] =
         logger.info("No admin notification recipients configured")
         return
 
+    # Build a minimal, clean HTML version of the notification for modern mail clients
+    admin_url = os.getenv("ADMIN_PANEL_URL", "http://localhost:5173/admin")
+    def _escape(s: str) -> str:
+            return html.escape(s or "")
+
+    html_body = f"""
+    <!doctype html>
+    <html>
+        <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <style>
+                body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f6f7f9; margin:0; padding:24px; }}
+                .card {{ max-width:600px; margin:0 auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 6px 18px rgba(17,24,39,0.06); }}
+                .brand {{ color:#b47d11; font-weight:700; margin-bottom:8px; }}
+                h2 {{ margin:8px 0 12px 0; font-size:18px; color:#111; }}
+                p {{ margin:0 0 10px 0; color:#333; line-height:1.5; white-space:pre-wrap; }}
+                .footer {{ margin-top:14px; font-size:13px; color:#666; }}
+                .btn {{ display:inline-block; padding:8px 12px; background:#b47d11; color:#fff; border-radius:6px; text-decoration:none; margin-top:8px; }}
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="brand">Vruksha Admin</div>
+                <h2>{_escape(subject)}</h2>
+                <p>{_escape(body)}</p>
+                <div class="footer">Open the admin panel to take action: <a class="btn" href="{admin_url}">Open Admin</a></div>
+            </div>
+        </body>
+    </html>
+    """
+
     for admin_addr in admins:
-        try:
-            send_email(admin_addr, subject, body, from_email=from_email)
-            logger.info(f"Sent admin notification to {admin_addr}")
-        except Exception as exc:
-            logger.warning(f"Failed to send admin notification to {admin_addr}: {exc}")
+            try:
+                # Send both plain-text and HTML alternative
+                send_email(admin_addr, subject, body, from_email=from_email, html=html_body)
+                logger.info(f"Sent admin notification to {admin_addr}")
+            except Exception as exc:
+                logger.warning(f"Failed to send admin notification to {admin_addr}: {exc}")
 
 
 class UserCreate(BaseModel):

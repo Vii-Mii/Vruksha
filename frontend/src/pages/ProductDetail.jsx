@@ -350,7 +350,33 @@ const ProductDetail = () => {
                       }}>
                         <Heart size={16} color="#111" />
                       </button>
-                      <button className="icon-btn" aria-label="Share product">
+                      <button className="icon-btn" aria-label="Share product" onClick={async () => {
+                        try {
+                          const url = window.location.href
+                          if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(url)
+                            toast.showToast('Product link copied to clipboard', 'success')
+                          } else {
+                            // fallback: create a temporary input
+                            const tmp = document.createElement('input')
+                            tmp.style.position = 'absolute'
+                            tmp.style.left = '-9999px'
+                            tmp.value = url
+                            document.body.appendChild(tmp)
+                            tmp.select()
+                            try {
+                              document.execCommand('copy')
+                              toast.showToast('Product link copied to clipboard', 'success')
+                            } catch (err) {
+                              toast.showToast('Could not copy link; please copy manually', 'error')
+                            }
+                            document.body.removeChild(tmp)
+                          }
+                        } catch (err) {
+                          console.error('Clipboard copy failed', err)
+                          toast.showToast('Could not copy link', 'error')
+                        }
+                      }}>
                         <Share2 size={16} color="#111" />
                       </button>
                   </div>

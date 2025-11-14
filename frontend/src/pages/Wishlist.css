@@ -118,3 +118,10 @@
   .wishlist-admin-list .admin-product-row { max-width: 100%; padding: 10px }
   .wishlist-admin-list .admin-product-row div > div { max-width: 100% }
 }
+
+/* Empty minimalist state */
+.wishlist-empty { display:flex; justify-content:center; align-items:center; padding:40px 0 }
+.wishlist-empty-card { text-align:center; max-width:640px; background: rgba(255,250,240,0.8); padding:28px; border-radius:12px; box-shadow: 0 6px 20px rgba(2,6,23,0.06) }
+.wishlist-quote { font-style:italic; font-size:18px; color:#5b4632; margin:0 0 6px }
+.wishlist-empty .muted { color:#6b7280 }
+

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { api } from '../utils/api'
+import { useToast } from '../contexts/ToastContext'
 import './ServicePage.css'
 import SubmissionModal from '../components/SubmissionModal'
 
@@ -32,10 +33,11 @@ const TuitionServices = () => {
     }))
   }
 
+  const toast = useToast()
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (formData.subjects.length === 0) {
-      alert('Please select at least one subject')
+      toast.showToast('Please select at least one subject', 'info')
       return
     }
     setModal({ visible: true, loading: true })

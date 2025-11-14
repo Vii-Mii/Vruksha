@@ -22,17 +22,19 @@ import Profile from './pages/Profile'
 import Orders from './pages/Orders'
 import Wishlist from './pages/Wishlist'
 import { AuthProvider } from './contexts/AuthContext'
+import { ToastProvider } from './contexts/ToastContext'
 import './App.css'
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Header />
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
+      <ToastProvider>
+        <Router>
+          <div className="App">
+            <Header />
+            <main>
+                <Routes>
+                <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={<Profile />} />
@@ -53,9 +55,10 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/wishlist" element={<Wishlist />} />
             </Routes>
-          </main>
-        </div>
-      </Router>
+            </main>
+          </div>
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   )
 }

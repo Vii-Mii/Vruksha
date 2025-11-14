@@ -6,6 +6,7 @@ import { api } from '../utils/api'
 import SubmissionModal from '../components/SubmissionModal'
 import { useAuth } from '../contexts/AuthContext'
 import { useLocation } from 'react-router-dom'
+import { useToast } from '../contexts/ToastContext'
 import './Checkout.css'
 
 const Checkout = () => {
@@ -24,6 +25,7 @@ const Checkout = () => {
   })
   const [qrState, setQrState] = useState({ visible: false, imageUrl: null, paymentId: null, status: null, timeLeft: 0 })
   const [modal, setModal] = useState({ visible: false, loading: false, title: '', message: '' })
+  const { showToast } = useToast()
 
   // Polling & expiry for QR modal
   useEffect(() => {
@@ -209,11 +211,11 @@ const Checkout = () => {
 
       // Clear cart and navigate to orders page so user can see the stored order
       clearCart()
-      alert('Order placed successfully! Thank you for your purchase.')
+    showToast('Order placed successfully! Thank you for your purchase.', 'success')
       navigate('/orders')
     } catch (error) {
       console.error('Error placing order:', error)
-      alert('Could not place order. Please try again.')
+    showToast('Could not place order. Please try again.', 'error')
     }
   }
 

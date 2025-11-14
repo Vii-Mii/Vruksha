@@ -4,6 +4,7 @@ import { api } from '../utils/api'
 import { addToCart } from '../utils/cart'
 import { Heart, Share2, Layers } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import './ProductDetail.css'
 
 const Star = ({ size = 14 }) => (
@@ -28,7 +29,8 @@ const ProductDetail = () => {
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [reviewText, setReviewText] = useState('')
   const [reviewRating, setReviewRating] = useState(5)
-  const { user } = useAuth()
+    const { user } = useAuth()
+    const toast = useToast()
 
   const FilledStar = ({ size = 12 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
@@ -145,7 +147,7 @@ const ProductDetail = () => {
     addToCart(payload)
     // small, non-blocking feedback
     const prev = document.activeElement
-    alert('Added to cart')
+    toast.showToast('Added to cart', 'success')
     if (prev && prev.focus) prev.focus()
   }
 
@@ -161,9 +163,9 @@ const ProductDetail = () => {
       // send payload with user_name, rating, text
       await api.createReview(id, payload, token)
       // optimistic: append locally with standard shape
-      const newRev = { id: null, product_id: Number(id), user_name: payload.user_name, rating: payload.rating, text: payload.text, created_at: new Date().toISOString() }
-      setProduct((p) => ({ ...p, reviews: [newRev, ...(p.reviews || [])] }))
-      alert('Review submitted')
+  const newRev = { id: null, product_id: Number(id), user_name: payload.user_name, rating: payload.rating, text: payload.text, created_at: new Date().toISOString() }
+  setProduct((p) => ({ ...p, reviews: [newRev, ...(p.reviews || [])] }))
+  toast.showToast('Review submitted', 'success')
     } catch (err) {
       console.warn('Failed to submit review; saving locally', err)
       // fallback to localStorage queue
@@ -172,14 +174,14 @@ const ProductDetail = () => {
       localStorage.setItem('pendingReviews', JSON.stringify(queue))
       // still append to UI
       const newRev = { id: null, product_id: Number(id), user_name: payload.user_name, rating: payload.rating, text: payload.text, created_at: new Date().toISOString() }
-      setProduct((p) => ({ ...p, reviews: [newRev, ...(p.reviews || [])] }))
-      alert('Saved review locally; it will be submitted when online')
+  setProduct((p) => ({ ...p, reviews: [newRev, ...(p.reviews || [])] }))
+  toast.showToast('Saved review locally; it will be submitted when online', 'info')
     }
   }
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault()
-    if (!reviewText.trim()) return alert('Please enter a short review')
+  if (!reviewText.trim()) return toast.showToast('Please enter a short review', 'info')
     const payload = { text: reviewText.trim(), rating: reviewRating, user_name: user?.name || 'You' }
     await submitReview(payload)
     setReviewText('')
@@ -331,16 +333,19 @@ const ProductDetail = () => {
                       <button className="icon-btn" aria-label="Add to wishlist" onClick={async () => {
                         try {
                           const token = localStorage.getItem('token')
-                          if (!token) return alert('Please login to use wishlist')
+                          if (!token) return toast.showToast('Please login to use wishlist', 'info')
                           // toggle: if already in wishlist, remove; otherwise add
                           if (product && product.id) {
                             // Try to add to wishlist (backend will avoid dupes)
                             await api.addToWishlist({ id: product.id, name: product.name, price: product.price }, token)
-                            alert('Added to wishlist')
+                              toast.showToast('Added to wishlist', 'success')
                           }
                         } catch (err) {
                           console.error('Wishlist add error', err)
-                          alert('Could not update wishlist')
+                            toast.showToast('Could not update wishlist', 'error')
+  toast.showToast('Review submitted', 'success')
+  toast.showToast('Saved review locally; it will be submitted when online', 'info')
+  if (!reviewText.trim()) return toast.showToast('Please enter a short review', 'info')
                         }
                       }}>
                         <Heart size={16} color="#111" />

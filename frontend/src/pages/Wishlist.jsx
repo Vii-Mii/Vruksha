@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import { Link } from 'react-router-dom'
 import { Eye, Trash2 } from 'lucide-react'
 import './Wishlist.css'
@@ -8,6 +9,7 @@ import './Wishlist.css'
 const Wishlist = () => {
   const { user } = useAuth()
   const [items, setItems] = useState([])
+  const toast = useToast()
 
   useEffect(() => {
     const load = async () => {
@@ -33,7 +35,7 @@ const Wishlist = () => {
       console.error('Failed to remove wishlist item', err)
       // rollback
       setItems(previous)
-      alert('Could not remove item')
+      toast.showToast('Could not remove item', 'error')
     }
   }
 
@@ -44,10 +46,15 @@ const Wishlist = () => {
   return (
     <div className="wishlist-page container">
       <h1>My Wishlist</h1>
+      <p className="wishlist-quote" style={{ textAlign: 'center', marginTop: 6 }}>
+        "Collect what you love — curate a little list of things that make you smile."
+      </p>
       {items.length === 0 ? (
-        <div>
-          <p>Your wishlist is empty.</p>
-          <Link to="/clothing-store" className="btn btn-primary">Shop now</Link>
+        <div className="wishlist-empty">
+          <div className="wishlist-empty-card">
+            <p className="muted" style={{ marginTop: 8 }}>Your wishlist is empty. Start exploring to add treasures.</p>
+            <Link to="/clothing-store" className="btn btn-ghost compact" style={{ background: 'transparent', border: '1px solid rgba(184,148,31,0.12)', color: '#B8941F', marginTop: 14 }}>Shop now</Link>
+          </div>
         </div>
       ) : (
         <div className="wishlist-admin-list">

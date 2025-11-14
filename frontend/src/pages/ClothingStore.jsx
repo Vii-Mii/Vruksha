@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api, cartApi } from '../utils/api'
 import { addToCart, getCart } from '../utils/cart'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import './StorePage.css'
 
 const ClothingStore = () => {
@@ -62,9 +63,10 @@ const ClothingStore = () => {
     setFilteredProducts(filtered)
   }, [filters, products])
 
+  const toast = useToast()
   const handleAddToCart = (product) => {
     addToCart({ ...product, quantity: 1 })
-    alert('Item added to cart!')
+    toast.showToast('Item added to cart!', 'success')
     // If the user is authenticated, sync the cart to server
     if (auth && auth.token) {
       ;(async () => {

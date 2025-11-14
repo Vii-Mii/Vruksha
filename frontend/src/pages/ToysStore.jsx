@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api, cartApi } from '../utils/api'
 import { addToCart, getCart } from '../utils/cart'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 import './StorePage.css'
 
 const ToysStore = () => {
@@ -58,9 +59,10 @@ const ToysStore = () => {
     setFilteredProducts(filtered)
   }, [filters, products])
 
+  const toast = useToast()
   const handleAddToCart = (product) => {
     addToCart({ ...product, quantity: 1 })
-    alert('Item added to cart!')
+    toast.showToast('Item added to cart!', 'success')
     if (auth && auth.token) {
       ;(async () => {
         try {

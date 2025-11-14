@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import './Profile.css'
 import { useAuth } from '../contexts/AuthContext'
+import { useToast } from '../contexts/ToastContext'
 
 const Profile = () => {
   const { user, updateUserProfile } = useAuth()
@@ -31,7 +32,8 @@ const Profile = () => {
     e.preventDefault()
     updateUserProfile(form)
     setEditing(false)
-    alert('Profile updated locally. These values will prefill checkout.')
+    const { showToast } = useToast()
+    showToast('Profile updated locally. These values will prefill checkout.', 'info')
   }
 
   return (

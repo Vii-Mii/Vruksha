@@ -181,6 +181,15 @@ adminApi.listNotifications = async (acknowledged = null) => {
   return response.data
 }
 
+// Upload an image file to backend (which will forward to Cloudinary if configured)
+api.uploadImage = async (file, token) => {
+  const form = new FormData()
+  form.append('file', file)
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.post(`${API_BASE_URL}/upload`, form, { headers: { ...headers, 'Content-Type': 'multipart/form-data' } })
+  return response.data
+}
+
 adminApi.ackNotification = async (notifId) => {
   const token = localStorage.getItem('token')
   const headers = token ? { Authorization: `Bearer ${token}` } : {}

@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status, Request
+from fastapi import File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import (
     create_engine,
@@ -30,6 +32,15 @@ import hmac
 import hashlib
 import logging
 import urllib.parse
+import io
+
+# Cloudinary optional integration
+try:
+    import cloudinary
+    import cloudinary.uploader
+except Exception:
+    cloudinary = None
+
 
 # Security setup
 SECRET_KEY = "vruksha-secret-key-change-in-production"
@@ -393,6 +404,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve local static files (uploads fallback)
+static_dir = os.path.join(os.path.dirname(__file__), 'static')
+os.makedirs(static_dir, exist_ok=True)
+uploads_dir = os.path.join(static_dir, 'uploads')
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount('/static', StaticFiles(directory=static_dir), name='static')
 
 
 # Dependency
@@ -941,6 +959,54 @@ def get_products(category: Optional[str] = None):
         return result
     finally:
         db.close()
+
+
+# Image upload endpoint: uploads to Cloudinary if configured, otherwise saves locally to backend/static/uploads
+@app.post("/api/upload")
+def upload_image(file: UploadFile = File(...)):
+    """Accepts a multipart file and returns JSON { image_url: ... }.
+    Requires CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET env vars to upload to Cloudinary.
+    Falls back to saving the file under backend/static/uploads and returning a local path URL.
+    """
+    # Prefer Cloudinary when available and configured
+    cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME")
+    cloud_key = os.getenv("CLOUDINARY_API_KEY")
+    cloud_secret = os.getenv("CLOUDINARY_API_SECRET")
+    try:
+        contents = file.file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to read uploaded file: {e}")
+
+    if cloudinary and cloud_name and cloud_key and cloud_secret:
+        try:
+            cloudinary.config(
+                cloud_name=cloud_name,
+                api_key=cloud_key,
+                api_secret=cloud_secret,
+                secure=True,
+            )
+            # upload accepts a file-like object; wrap bytes in BytesIO
+            res = cloudinary.uploader.upload(io.BytesIO(contents), resource_type="image")
+            image_url = res.get("secure_url") or res.get("url")
+            return {"image_url": image_url}
+        except Exception as e:
+            # fallback to local storage if Cloudinary fails
+            logging.exception("Cloudinary upload failed")
+
+    # Local fallback: save under backend/static/uploads
+    uploads_dir = os.path.join(os.path.dirname(__file__), "static", "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+    filename = f"{int(datetime.utcnow().timestamp())}_{os.path.basename(file.filename)}"
+    dest_path = os.path.join(uploads_dir, filename)
+    try:
+        with open(dest_path, "wb") as f:
+            f.write(contents)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file locally: {e}")
+
+    # Return relative path the frontend can use (assumes static files served from /static)
+    image_url = f"/static/uploads/{filename}"
+    return {"image_url": image_url}
 
 
 @app.get("/api/products/{product_id}")

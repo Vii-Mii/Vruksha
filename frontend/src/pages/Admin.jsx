@@ -423,25 +423,16 @@ const Admin = () => {
   }
 
   const uploadImageToCloudinary = async (file) => {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', 'vruksha_products') // You'll need to create this preset in Cloudinary
-    
+    // Use backend upload endpoint (which forwards to Cloudinary if configured)
     try {
-      const response = await fetch('https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', {
-        method: 'POST',
-        body: formData
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to upload image')
-      }
-      
-      const data = await response.json()
-      return data.secure_url
-    } catch (error) {
-      console.error('Image upload error:', error)
-      // For now, return a placeholder URL since Cloudinary setup is needed
+      const token = localStorage.getItem('token')
+      const resp = await api.uploadImage(file, token)
+      // resp is expected to be an object like { image_url: 'https://...' }
+      if (resp && resp.image_url) return resp.image_url
+      // fallback to object URL if backend didn't return a URL
+      return URL.createObjectURL(file)
+    } catch (err) {
+      console.error('Image upload failed:', err)
       return URL.createObjectURL(file)
     }
   }

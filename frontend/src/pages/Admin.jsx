@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { api, adminApi } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { User, Mail, Phone, UserCheck, UserMinus, ShieldCheck } from 'lucide-react'
+import { User, Mail, Phone, UserCheck, UserMinus, ShieldCheck, Image, Palette } from 'lucide-react'
 import Notifications from '../components/Notifications'
 import './Admin.css'
 
@@ -716,31 +716,34 @@ const Admin = () => {
 
         <div className="admin-content">
           {['clothing', 'pooja', 'toys'].includes(activeTab) && (
-            <div className="admin-products-list" style={{ marginBottom: 18 }}>
-              <h3>Existing Items</h3>
-              <div className="products-list">
-                {productsList.map(p => (
-                  <div key={p.id} className="admin-product-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                      <img src={(p.images && p.images[0]) || 'https://via.placeholder.com/80'} alt={p.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
-                      <div>
-                        <strong>{p.name}</strong>
-                        <div style={{ color: '#666', fontSize: 13 }}>{p.subcategory} • ₹{p.price}</div>
+            <div className="admin-two-col">
+              <div className="admin-two-col-left">
+                <h3>Existing Items</h3>
+                <div className="products-list">
+                  {productsList.map(p => (
+                    <div key={p.id} className="admin-product-row">
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        <img src={(p.images && p.images[0]) || 'https://via.placeholder.com/80'} alt={p.name} style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6 }} />
+                        <div>
+                          <strong>{p.name}</strong>
+                          <div style={{ color: '#666', fontSize: 13 }}>{p.subcategory} • ₹{p.price}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button className="btn btn-ghost" onClick={() => startEditProduct(p)}>Edit</button>
+                        <button className="btn btn-danger" onClick={() => handleDeleteProduct(p.id)}>Delete</button>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <button className="btn btn-ghost" onClick={() => startEditProduct(p)}>Edit</button>
-                      <button className="btn btn-danger" onClick={() => handleDeleteProduct(p.id)}>Delete</button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-          {activeTab === 'clothing' && (
-            <div className="admin-section">
-              <h2>Add Clothing Item</h2>
-              <form onSubmit={handleClothingSubmit} className="admin-form">
+
+              <div className="admin-two-col-right">
+                {/* forms will render here depending on tab */}
+                {activeTab === 'clothing' && (
+                  <div className="admin-section">
+                    <h2>{editingProduct ? 'Edit Clothing Item' : 'Add Clothing Item'}</h2>
+                    <form onSubmit={handleClothingSubmit} className="admin-form">
                 <div className="form-group">
                   <label>Product Name *</label>
                   <input
@@ -798,8 +801,14 @@ const Admin = () => {
                       <div key={idx} className="color-row">
                         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                           <input type="text" value={c.name} onChange={(e) => setClothingColors(prev => { const p = [...prev]; p[idx].name = e.target.value; return p })} placeholder="Color name (e.g. Red)" />
-                          <input type="color" value={c.hex} onChange={(e) => setClothingColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} title="Color hex" />
-                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `clothing-color-${idx}`)} />
+                          <label className="color-swatch-btn" title="Choose color">
+                            <input type="color" value={c.hex} onChange={(e) => setClothingColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} className="color-input" />
+                            <span style={{ background: c.hex || '#cccccc' }}><Palette size={14} /></span>
+                          </label>
+                          <label className="file-upload-btn" title="Upload color image">
+                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `clothing-color-${idx}`)} className="image-input" />
+                            <span className="upload-icon"><Image size={14} /></span>
+                          </label>
                           {c.imagePreview ? <img src={c.imagePreview} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} /> : null}
                           <button type="button" className="btn btn-ghost" onClick={() => setClothingColors(prev => { const p = [...prev]; p.splice(idx,1); return p })}>Remove</button>
                         </div>
@@ -848,10 +857,10 @@ const Admin = () => {
             </div>
           )}
 
-          {activeTab === 'pooja' && (
-            <div className="admin-section">
-              <h2>Add Pooja Item</h2>
-              <form onSubmit={handlePoojaSubmit} className="admin-form">
+                {activeTab === 'pooja' && (
+                  <div className="admin-section">
+                    <h2>{editingProduct ? 'Edit Pooja Item' : 'Add Pooja Item'}</h2>
+                    <form onSubmit={handlePoojaSubmit} className="admin-form">
                 <div className="form-group">
                   <label>Product Name *</label>
                   <input
@@ -906,8 +915,14 @@ const Admin = () => {
                       <div key={idx} className="color-row">
                         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                           <input type="text" value={c.name} onChange={(e) => setPoojaColors(prev => { const p = [...prev]; p[idx].name = e.target.value; return p })} placeholder="Color name (e.g. Red)" />
-                          <input type="color" value={c.hex} onChange={(e) => setPoojaColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} title="Color hex" />
-                          <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `pooja-color-${idx}`)} />
+                          <label className="color-swatch-btn" title="Choose color">
+                            <input type="color" value={c.hex} onChange={(e) => setPoojaColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} className="color-input" />
+                            <span style={{ background: c.hex || '#cccccc' }}><Palette size={14} /></span>
+                          </label>
+                          <label className="file-upload-btn" title="Upload color image">
+                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `pooja-color-${idx}`)} className="image-input" />
+                            <span className="upload-icon"><Image size={14} /></span>
+                          </label>
                           {c.imagePreview ? <img src={c.imagePreview} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} /> : null}
                           <button type="button" className="btn btn-ghost" onClick={() => setPoojaColors(prev => { const p = [...prev]; p.splice(idx,1); return p })}>Remove</button>
                         </div>
@@ -940,10 +955,10 @@ const Admin = () => {
             </div>
           )}
 
-          {activeTab === 'toys' && (
-            <div className="admin-section">
-              <h2>Add Toy</h2>
-              <form onSubmit={handleToysSubmit} className="admin-form">
+                {activeTab === 'toys' && (
+                  <div className="admin-section">
+                    <h2>{editingProduct ? 'Edit Toy' : 'Add Toy'}</h2>
+                    <form onSubmit={handleToysSubmit} className="admin-form">
                 <div className="form-group">
                   <label>Product Name *</label>
                   <input
@@ -987,8 +1002,14 @@ const Admin = () => {
                         <div key={idx} className="color-row">
                           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                             <input type="text" value={c.name} onChange={(e) => setToysColors(prev => { const p = [...prev]; p[idx].name = e.target.value; return p })} placeholder="Color name (e.g. Red)" />
-                            <input type="color" value={c.hex} onChange={(e) => setToysColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} title="Color hex" />
-                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `toys-color-${idx}`)} />
+                            <label className="color-swatch-btn" title="Choose color">
+                              <input type="color" value={c.hex} onChange={(e) => setToysColors(prev => { const p = [...prev]; p[idx].hex = e.target.value; return p })} className="color-input" />
+                              <span style={{ background: c.hex || '#cccccc' }}><Palette size={14} /></span>
+                            </label>
+                            <label className="file-upload-btn" title="Upload color image">
+                              <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files[0], `toys-color-${idx}`)} className="image-input" />
+                              <span className="upload-icon"><Image size={14} /></span>
+                            </label>
                             {c.imagePreview ? <img src={c.imagePreview} alt="preview" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} /> : null}
                             <button type="button" className="btn btn-ghost" onClick={() => setToysColors(prev => { const p = [...prev]; p.splice(idx,1); return p })}>Remove</button>
                           </div>
@@ -1041,6 +1062,10 @@ const Admin = () => {
                 {/* Toys use per-variant images; product-level image upload removed */}
                 <button type="submit" className="btn btn-primary">Add Toy</button>
               </form>
+            </div>
+          )}
+
+              </div>
             </div>
           )}
 

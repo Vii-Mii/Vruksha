@@ -86,8 +86,23 @@
 }
 
 .admin-content {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
+  padding: 0 14px;
+}
+
+/* Two-column layout for admin products pages */
+.admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.admin-two-col-left { background: #ffffff; padding: 22px 18px; border-radius: 14px; border: 1px solid #f3f4f6; box-shadow: 0 6px 20px rgba(16,24,40,0.04); }
+/* right column uses existing .admin-section styling */
+.products-list { display: flex; flex-direction: column; gap: 12px; max-height: 74vh; overflow: auto; }
+.admin-product-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-radius: 10px; border: 1px solid #f8f8f8; background: #ffffff; }
+.admin-product-row:hover { box-shadow: 0 12px 36px rgba(16,24,40,0.06); transform: translateY(-3px); }
+
+@media (max-width: 980px) {
+  .admin-two-col { grid-template-columns: 1fr; }
+  .admin-two-col-left { order: 2; }
+  .admin-two-col-right { order: 1; }
 }
 
 .admin-section {
@@ -461,6 +476,34 @@
   resize: vertical;
   min-height: 100px;
 }
+
+/* Stylized upload and color controls */
+.file-upload-btn, .color-swatch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #ececec;
+  cursor: pointer;
+  color: #0f172a;
+  transition: all 0.12s ease;
+}
+.file-upload-btn:hover, .color-swatch-btn:hover { box-shadow: 0 10px 30px rgba(16,24,40,0.08); transform: translateY(-2px); }
+.file-upload-btn .image-input, .color-swatch-btn .color-input { position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none; }
+.file-upload-btn svg, .color-swatch-btn svg { width: 16px; height: 16px; color: #10100f; }
+.color-swatch-btn span { display: inline-flex; width: 28px; height: 28px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); align-items: center; justify-content: center; box-shadow: inset 0 -2px 6px rgba(0,0,0,0.03); line-height: 0; box-sizing: border-box; }
+/* upload icon matches the color swatch size and visual weight */
+.upload-icon { display: inline-flex; width: 28px; height: 28px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.06); align-items: center; justify-content: center; box-shadow: inset 0 -2px 6px rgba(0,0,0,0.03); background: #fff; line-height: 0; box-sizing: border-box; }
+.upload-icon svg { width: 16px; height: 16px; color: #B8941F; display: block; }
+.file-upload-btn svg, .color-swatch-btn svg { display: block; }
+.file-upload-btn, .color-swatch-btn { padding-left: 6px; padding-right: 6px; }
+.file-upload-btn + .image-preview, .color-swatch-btn + .image-preview { margin-left: 10px; }
+
+
 
 @media (max-width: 768px) {
   .admin-title {

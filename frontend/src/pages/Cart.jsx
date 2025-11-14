@@ -108,7 +108,7 @@ const Cart = () => {
                   </div>
                 </div>
                 <div className="cart-item-total">
-                  <p className="item-total">₹{item.price * item.quantity}</p>
+                  <p className="item-total">₹{(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)}</p>
                   <button
                     onClick={() => handleRemove(item.id, item.size)}
                     className="remove-btn"

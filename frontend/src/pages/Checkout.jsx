@@ -324,7 +324,7 @@ const Checkout = () => {
                     {item.size && <p className="order-item-size">Size: {item.size}</p>}
                     <p className="order-item-qty">Qty: {item.quantity}</p>
                   </div>
-                  <p className="order-item-price">₹{item.price * item.quantity}</p>
+                  <p className="order-item-price">₹{(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)}</p>
                 </div>
               ))}
             </div>

@@ -4,6 +4,20 @@
   background: #fafafa;
 }
 
+/* Centered header helper */
+.admin-header-centered { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; }
+
+.header-notifications { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; }
+
+@media (max-width: 720px) {
+  .header-notifications { position: static; transform: none; margin-top: 8px; }
+  /* make header use full width and keep bell to the right edge on mobile */
+  .admin-header-centered { align-items: stretch; width: 100%; }
+  .admin-header-centered > div { width: 100%; }
+  .admin-header-centered { padding-right: 48px; /* reserve space for the bell */ }
+  .header-notifications { justify-content: flex-end; align-self: flex-end; margin-top: 0; }
+}
+
 .admin-title {
   font-size: 2.5rem;
   font-weight: 700;

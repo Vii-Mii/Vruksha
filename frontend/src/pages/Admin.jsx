@@ -664,12 +664,12 @@ const Admin = () => {
   return (
     <div className="admin-page">
       <div className="container">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <div>
+        <div style={{ position: 'relative', marginBottom: 12 }} className="admin-header-centered">
+          <div style={{ textAlign: 'center' }}>
             <h1 className="admin-title">Admin Panel</h1>
             <p className="admin-subtitle">Manage Products</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="header-notifications"> 
             <Notifications />
           </div>
         </div>

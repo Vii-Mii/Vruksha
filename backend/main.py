@@ -236,6 +236,23 @@ class VariantSize(Base):
 Base.metadata.create_all(bind=engine)
 
 
+# Admin notifications model — stores events admins should action/acknowledge
+class AdminNotification(Base):
+    __tablename__ = "admin_notifications"
+    id = Column(Integer, primary_key=True, index=True)
+    type = Column(String, nullable=False)  # 'order', 'booking', 'inquiry', 'payment', etc.
+    ref_id = Column(Integer, nullable=True)  # id of the referenced record (order id, booking id...)
+    title = Column(String, nullable=False)
+    body = Column(Text, nullable=True)
+    is_acknowledged = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    acknowledged_at = Column(DateTime, nullable=True)
+
+
+# ensure the notifications table exists as well
+Base.metadata.create_all(bind=engine)
+
+
 # Pydantic models
 class ProductCreate(BaseModel):
     name: str
@@ -397,6 +414,23 @@ def _get_smtp_config():
     password = os.getenv("SMTP_PASS")
     use_tls = os.getenv("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes")
     return host, port, user, password, use_tls
+
+
+def create_admin_notification(db: Session, n_type: str, ref_id: Optional[int], title: str, body: Optional[str] = None):
+    """Create an admin notification record.
+    Non-fatal: wrap callers should catch exceptions.
+    """
+    try:
+        notif = AdminNotification(type=n_type, ref_id=ref_id, title=title, body=body)
+        db.add(notif)
+        db.commit()
+        db.refresh(notif)
+        return notif
+    except Exception:
+        db.rollback()
+        # Do not raise; notification creation is best-effort
+        return None
+
 
 
 def send_email(
@@ -1426,6 +1460,11 @@ def create_booking(booking: BookingCreate):
             send_admin_notification(subject, body, from_email=db_booking.email)
         except Exception as e:
             print("Error preparing booking email notification:", str(e))
+        # Persist an in-app admin notification (best-effort)
+        try:
+            create_admin_notification(db, n_type="booking", ref_id=db_booking.id, title=subject, body=body)
+        except Exception:
+            pass
         return {"id": db_booking.id, "message": "Booking created successfully"}
     finally:
         db.close()
@@ -1457,6 +1496,12 @@ def create_inquiry(inquiry: InquiryCreate):
         except Exception as e:
             # protect the endpoint if any unexpected error occurs while preparing email
             print("Error preparing email notification:", str(e))
+
+        # Persist an in-app admin notification
+        try:
+            create_admin_notification(db, n_type="inquiry", ref_id=db_inquiry.id, title=subject, body=body)
+        except Exception:
+            pass
 
         return {"id": db_inquiry.id, "message": "Inquiry submitted successfully"}
     finally:
@@ -1536,6 +1581,11 @@ def create_order(
             send_admin_notification(subject, body, from_email=db_order.email)
         except Exception as e:
             print("Warning: failed to prepare/send order notification:", str(e))
+        # Persist an in-app admin notification for new orders
+        try:
+            create_admin_notification(db, n_type="order", ref_id=db_order.id, title=subject, body=body)
+        except Exception:
+            pass
         return {
             "id": db_order.id,
             "message": "Order placed successfully",
@@ -1660,6 +1710,54 @@ def admin_list_orders(
             }
         )
     return result
+
+
+# Admin notifications: list and acknowledge
+@app.get("/api/admin/notifications", response_model=List[dict])
+def admin_list_notifications(
+    acknowledged: Optional[bool] = None,
+    admin_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """List admin notifications. Pass ?acknowledged=true to filter acknowledged ones.
+    By default returns newest first.
+    """
+    q = db.query(AdminNotification)
+    if acknowledged is not None:
+        q = q.filter(AdminNotification.is_acknowledged == bool(acknowledged))
+    notifs = q.order_by(AdminNotification.created_at.desc()).all()
+    out = []
+    for n in notifs:
+        out.append(
+            {
+                "id": n.id,
+                "type": n.type,
+                "ref_id": n.ref_id,
+                "title": n.title,
+                "body": n.body,
+                "is_acknowledged": bool(n.is_acknowledged),
+                "created_at": n.created_at.isoformat() if n.created_at else None,
+                "acknowledged_at": n.acknowledged_at.isoformat() if n.acknowledged_at else None,
+            }
+        )
+    return out
+
+
+@app.post("/api/admin/notifications/{notif_id}/ack")
+def admin_acknowledge_notification(
+    notif_id: int,
+    admin_user: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    n = db.query(AdminNotification).filter(AdminNotification.id == notif_id).first()
+    if not n:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    if not n.is_acknowledged:
+        n.is_acknowledged = True
+        n.acknowledged_at = datetime.utcnow()
+        db.add(n)
+        db.commit()
+    return {"id": n.id, "is_acknowledged": bool(n.is_acknowledged), "acknowledged_at": n.acknowledged_at.isoformat() if n.acknowledged_at else None}
 
 
 # Create shipment (mark order as shipped)

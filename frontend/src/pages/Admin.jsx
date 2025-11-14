@@ -3,6 +3,7 @@ import { api, adminApi } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { User, Mail, Phone, UserCheck, UserMinus, ShieldCheck } from 'lucide-react'
+import Notifications from '../components/Notifications'
 import './Admin.css'
 
 const Admin = () => {
@@ -663,8 +664,15 @@ const Admin = () => {
   return (
     <div className="admin-page">
       <div className="container">
-        <h1 className="admin-title">Admin Panel</h1>
-        <p className="admin-subtitle">Manage Products</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <h1 className="admin-title">Admin Panel</h1>
+            <p className="admin-subtitle">Manage Products</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Notifications />
+          </div>
+        </div>
 
         {successMessage && (
           <div className="message success-message">{successMessage}</div>

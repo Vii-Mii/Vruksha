@@ -153,6 +153,22 @@ adminApi.createVariant = async (productId, payload) => {
   return response.data
 }
 
+// Admin notifications
+adminApi.listNotifications = async (acknowledged = null) => {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const url = acknowledged === null ? `${API_BASE_URL}/admin/notifications` : `${API_BASE_URL}/admin/notifications?acknowledged=${acknowledged}`
+  const response = await axios.get(url, { headers })
+  return response.data
+}
+
+adminApi.ackNotification = async (notifId) => {
+  const token = localStorage.getItem('token')
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const response = await axios.post(`${API_BASE_URL}/admin/notifications/${notifId}/ack`, null, { headers })
+  return response.data
+}
+
 // Cart endpoints
 export const cartApi = {
   getCart: async (token) => {

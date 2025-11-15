@@ -518,6 +518,32 @@ def send_email(
         # Use a minimal, inline-styled HTML alternative for better visual emails.
         msg.add_alternative(html, subtype="html")
 
+    # If a SendGrid API key is provided, prefer using the HTTP API which avoids
+    # outbound SMTP port restrictions on some hosting providers. This is an
+    # optional fallback; if SENDGRID_API_KEY is not set we continue with SMTP.
+    sendgrid_key = os.getenv("SENDGRID_API_KEY")
+    if sendgrid_key:
+        payload = {
+            "personalizations": [{"to": [{"email": to_email}]}],
+            "from": {"email": from_email or user},
+            "subject": subject,
+            "content": [{"type": "text/plain", "value": body}],
+        }
+        if html:
+            # prefer html content as second part
+            payload["content"].append({"type": "text/html", "value": html})
+
+        headers = {"Authorization": f"Bearer {sendgrid_key}", "Content-Type": "application/json"}
+        try:
+            resp = requests.post("https://api.sendgrid.com/v3/mail/send", json=payload, headers=headers, timeout=10)
+            if resp.status_code in (200, 202):
+                return
+            # non-2xx from SendGrid: raise to let caller log/handle
+            raise RuntimeError(f"SendGrid send failed: {resp.status_code} {resp.text}")
+        except Exception:
+            # Re-raise so callers (send_admin_notification) can log the failure
+            raise
+
     # Use SSL if port 465, otherwise use STARTTLS if configured
     try:
         if port == 465:
@@ -589,7 +615,8 @@ def send_admin_notification(subject: str, body: str, from_email: Optional[str] =
                 send_email(admin_addr, subject, body, from_email=from_email, html=html_body)
                 logger.info(f"Sent admin notification to {admin_addr}")
             except Exception as exc:
-                logger.warning(f"Failed to send admin notification to {admin_addr}: {exc}")
+                # Log full exception traceback to help debugging connectivity issues
+                logger.exception(f"Failed to send admin notification to {admin_addr}: {exc}")
 
 
 class UserCreate(BaseModel):

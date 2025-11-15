@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Auth.css'
+import TermsModal from '../components/TermsModal'
 
 const Register = () => {
   const navigate = useNavigate()
@@ -16,6 +17,8 @@ const Register = () => {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [termsOpen, setTermsOpen] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   const handleChange = (e) => {
     setFormData({
@@ -222,13 +225,13 @@ const Register = () => {
 
               <div className="form-options">
                 <label className="checkbox-wrapper">
-                  <input type="checkbox" required />
+                  <input type="checkbox" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} />
                   <span className="checkmark"></span>
-                  I agree to the <Link to="/terms" className="auth-link">Terms & Conditions</Link>
+                  I agree to the <button type="button" className="auth-link" onClick={() => setTermsOpen(true)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>Terms & Conditions</button>
                 </label>
               </div>
 
-              <button type="submit" className="auth-btn" disabled={loading}>
+              <button type="submit" className="auth-btn" disabled={loading || !acceptedTerms}>
                 {loading ? (
                   <div className="loading-spinner">
                     <svg width="20" height="20" viewBox="0 0 24 24">
@@ -244,6 +247,8 @@ const Register = () => {
                 )}
               </button>
             </form>
+
+            <TermsModal open={termsOpen} onClose={() => setTermsOpen(false)} onAccept={() => setAcceptedTerms(true)} />
 
             <div className="auth-footer">
               <p>Already have an account? <Link to="/login" className="auth-link">Sign in here</Link></p>

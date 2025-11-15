@@ -642,6 +642,25 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
+def is_strong_password(pw: str) -> bool:
+    if not pw or len(pw) < 8:
+        return False
+    score = 0
+    if len(pw) >= 8:
+        score += 1
+    if len(pw) >= 12:
+        score += 1
+    if any(c.islower() for c in pw):
+        score += 1
+    if any(c.isupper() for c in pw):
+        score += 1
+    if any(c.isdigit() for c in pw):
+        score += 1
+    if any(not c.isalnum() for c in pw):
+        score += 1
+    return score >= 4
+
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -776,6 +795,10 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+
+    # Enforce password strength server-side
+    if not is_strong_password(user.password):
+        raise HTTPException(status_code=400, detail="Password does not meet strength requirements")
 
     # Create new user
     hashed_password = get_password_hash(user.password)

@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Auth.css'
+import '../pages/PasswordStrength.css'
+import { estimatePassword } from '../utils/password'
 import TermsModal from '../components/TermsModal'
 
 const Register = () => {
@@ -35,6 +37,14 @@ const Register = () => {
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
+
+    // Validate password strength
+    const pwEval = estimatePassword(formData.password)
+    if (!pwEval.isStrong) {
+      setError('Please choose a stronger password (use mixed case, numbers and symbols, 12+ chars).')
       setLoading(false)
       return
     }
@@ -200,6 +210,15 @@ const Register = () => {
                     required
                     placeholder="Create a password"
                   />
+                </div>
+                <div className="pw-meter register-gap">
+                  <div className="pw-bars">
+                    {[1,2,3,4,5,6].map((i)=>{
+                      const cls = i <= estimatePassword(formData.password).score ? `pw-bar fill-${Math.min(i,5)}` : 'pw-bar'
+                      return <div key={i} className={cls}></div>
+                    })}
+                  </div>
+                  <div className="pw-label">{estimatePassword(formData.password).label}</div>
                 </div>
               </div>
 

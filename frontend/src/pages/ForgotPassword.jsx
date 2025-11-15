@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import './ForgotPassword.css'
+import '../pages/PasswordStrength.css'
+import { estimatePassword } from '../utils/password'
 import { api } from '../utils/api'
 import { useToast } from '../contexts/ToastContext'
 
@@ -50,6 +52,9 @@ const ForgotPassword = () => {
     e.preventDefault()
     if (!newPassword || !confirmPassword) return toast.showToast('Fill both password fields', 'error')
     if (newPassword !== confirmPassword) return toast.showToast('Passwords do not match', 'error')
+    // require strong password
+    const pwEval = estimatePassword(newPassword)
+    if (!pwEval.isStrong) return toast.showToast('Please choose a stronger password (12+ chars, mixed case, numbers, symbols).', 'error')
     setLoading(true)
     try {
       await api.resetPassword(resetToken, newPassword)
@@ -102,6 +107,15 @@ const ForgotPassword = () => {
                 <div className="form-group">
                   <label>New password</label>
                   <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New password" required />
+                </div>
+                <div className="pw-meter">
+                  <div className="pw-bars">
+                    {[1,2,3,4,5,6].map((i)=>{
+                      const cls = i <= estimatePassword(newPassword).score ? `pw-bar fill-${Math.min(i,5)}` : 'pw-bar'
+                      return <div key={i} className={cls}></div>
+                    })}
+                  </div>
+                  <div className="pw-label">{estimatePassword(newPassword).label}</div>
                 </div>
                 <div className="form-group">
                   <label>Confirm password</label>

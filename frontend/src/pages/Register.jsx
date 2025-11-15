@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { BACKEND_ORIGIN } from '../utils/api'
 import './Auth.css'
 import '../pages/PasswordStrength.css'
 import { estimatePassword } from '../utils/password'
@@ -50,7 +51,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
+  const response = await fetch(`${BACKEND_ORIGIN.replace(/\/$/, '')}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { BACKEND_ORIGIN } from '../utils/api'
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth()
@@ -39,7 +40,8 @@ const AdminRoute = ({ children }) => {
       const token = localStorage.getItem('token')
       if (token) {
         try {
-          const resp = await fetch('http://localhost:8000/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+          const origin = (BACKEND_ORIGIN || 'http://localhost:8000').replace(/\/$/, '')
+          const resp = await fetch(`${origin}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
           if (resp.ok) {
             const data = await resp.json()
             // store refreshed user

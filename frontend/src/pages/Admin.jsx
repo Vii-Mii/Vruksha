@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { api, adminApi } from '../utils/api'
+import { api, adminApi, BACKEND_ORIGIN } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { User, Mail, Phone, UserCheck, UserMinus, ShieldCheck, Image, Palette } from 'lucide-react'
@@ -139,7 +139,8 @@ const Admin = () => {
       const token = localStorage.getItem('token')
       if (token) {
         try {
-          const resp = await fetch('http://localhost:8000/api/auth/me', { headers: { Authorization: `Bearer ${token}` } })
+          const origin = (BACKEND_ORIGIN || 'http://localhost:8000').replace(/\/$/, '')
+          const resp = await fetch(`${origin}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
           if (resp.ok) {
             const data = await resp.json()
             localStorage.setItem('user', JSON.stringify(data))

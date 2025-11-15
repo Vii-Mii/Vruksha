@@ -34,6 +34,7 @@ import logging
 import urllib.parse
 import io
 import html
+import random
 
 # Cloudinary optional integration
 try:
@@ -174,6 +175,17 @@ class Cart(Base):
     )
 
 
+# Password reset OTPs
+class PasswordResetOTP(Base):
+    __tablename__ = "password_reset_otps"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, index=True, nullable=False)
+    otp = Column(String, nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # Payment model (Razorpay QR integration)
 class Payment(Base):
     __tablename__ = "payments"
@@ -197,6 +209,11 @@ class Payment(Base):
 
 # Ensure tables exist (call again after adding Payment)
 Base.metadata.create_all(bind=engine)
+# Ensure any newly-added models (like PasswordResetOTP) are created as well
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 # Try to add `colors` column if it does not exist; ignore failures
 try:
     with engine.connect() as conn:
@@ -580,6 +597,20 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ForgotPasswordIn(BaseModel):
+    email: str
+
+
+class VerifyOtpIn(BaseModel):
+    email: str
+    otp: str
+
+
+class ResetPasswordIn(BaseModel):
+    reset_token: str
+    new_password: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -624,6 +655,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
+
+
+def _create_reset_token(email: str, expires_minutes: int = 10):
+    expire = datetime.utcnow() + timedelta(minutes=expires_minutes)
+    payload = {"sub": email, "pw_reset": True, "exp": expire}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def authenticate_user(db: Session, email: str, password: str):
@@ -777,6 +814,111 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
             "pincode": None,
         },
     }
+
+
+@app.post('/api/auth/forgot-password')
+def forgot_password(payload: ForgotPasswordIn, db: Session = Depends(get_db)):
+    email = (payload.email or '').strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail='email is required')
+
+    user = db.query(User).filter(User.email == email).first()
+    # For security, do not reveal whether the email is registered.
+    # If user exists, generate OTP and send email.
+    if user:
+        otp = f"{random.randint(100000, 999999)}"
+        expires_at = datetime.utcnow() + timedelta(minutes=10)
+        try:
+            otp_row = PasswordResetOTP(email=email, otp=otp, expires_at=expires_at, used=False)
+            db.add(otp_row)
+            db.commit()
+        except Exception:
+            db.rollback()
+        # send email (best-effort)
+        try:
+            subject = 'Vruksha password reset OTP'
+            body = f'Your Vruksha password reset OTP is: {otp}. It expires in 10 minutes.'
+            html = f"<p>Your Vruksha password reset OTP is: <strong>{otp}</strong></p><p>This code expires in 10 minutes.</p>"
+            send_email(user.email, subject, body, html=html)
+        except Exception as exc:
+            # Log but don't fail
+            logger.warning(f'Failed to send password reset email to {email}: {exc}')
+
+    return {"ok": True, "message": "If the email is registered, an OTP has been sent."}
+
+
+@app.post('/api/auth/verify-otp')
+def verify_otp(payload: VerifyOtpIn, db: Session = Depends(get_db)):
+    email = (payload.email or '').strip().lower()
+    otp = (payload.otp or '').strip()
+    if not email or not otp:
+        raise HTTPException(status_code=400, detail='email and otp are required')
+
+    # Find matching unused OTP not expired
+    now = datetime.utcnow()
+    otp_row = (
+        db.query(PasswordResetOTP)
+        .filter(PasswordResetOTP.email == email, PasswordResetOTP.otp == otp, PasswordResetOTP.used == False, PasswordResetOTP.expires_at >= now)
+        .order_by(PasswordResetOTP.created_at.desc())
+        .first()
+    )
+    if not otp_row:
+        raise HTTPException(status_code=400, detail='Invalid or expired OTP')
+
+    # Mark as used
+    try:
+        otp_row.used = True
+        db.add(otp_row)
+        db.commit()
+    except Exception:
+        db.rollback()
+
+    # Issue a short-lived reset token the frontend can use to set a new password
+    token = _create_reset_token(email, expires_minutes=15)
+    return {"ok": True, "reset_token": token}
+
+
+@app.post('/api/auth/reset-password')
+def reset_password(payload: ResetPasswordIn, db: Session = Depends(get_db)):
+    token = payload.reset_token
+    new_password = payload.new_password or ''
+    if not token or not new_password:
+        raise HTTPException(status_code=400, detail='reset_token and new_password are required')
+
+    # Decode token
+    try:
+        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email = data.get('sub')
+        if not data.get('pw_reset'):
+            raise JWTError('invalid token purpose')
+    except JWTError:
+        raise HTTPException(status_code=400, detail='Invalid or expired reset token')
+    except Exception:
+        raise HTTPException(status_code=400, detail='Invalid reset token')
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail='User not found')
+
+    # Update password
+    try:
+        user.hashed_password = get_password_hash(new_password)
+        db.add(user)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail='Failed to update password')
+
+    # Notify user via email
+    try:
+        subject = 'Your Vruksha password has been changed'
+        body = 'Your password for Vruksha has been successfully changed. If you did not perform this action, contact support immediately.'
+        html = f"<p>Your password for Vruksha has been successfully changed.</p><p>If you did not perform this action, contact support immediately.</p>"
+        send_email(user.email, subject, body, html=html)
+    except Exception as exc:
+        logger.warning(f'Failed to send password changed email to {user.email}: {exc}')
+
+    return {"ok": True, "message": "Password updated successfully"}
 
 
 @app.post("/api/auth/login", response_model=dict)

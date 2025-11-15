@@ -7,4 +7,5 @@ python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
 python-decouple>=3.8
 cloudinary>=1.32.0
+requests>=2.31.0
 

@@ -45,9 +45,10 @@ except Exception:
 
 
 # Security setup
-SECRET_KEY = "vruksha-secret-key-change-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Read secrets from environment variables for production deployment
+SECRET_KEY = os.getenv("SECRET_KEY", "vruksha-secret-key-change-in-production")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 
 AUTH_INVALID = "Could not validate credentials"
@@ -57,10 +58,13 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 security = HTTPBearer()
 
 # Database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./vruksha.db"
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+# Use DATABASE_URL env var if provided (Postgres for production), otherwise fall back to local sqlite
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL") or "sqlite:///./vruksha.db"
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    # For postgres and other drivers, do not pass sqlite-specific connect args
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -415,9 +419,12 @@ class ShipmentCreate(BaseModel):
 app = FastAPI(title="Vruksha Services API")
 
 # CORS middleware
+# Configure CORS origins via environment variable ALLOWED_ORIGINS (comma separated)
+allowed_origins_raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+allowed_origins = [o.strip() for o in allowed_origins_raw.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

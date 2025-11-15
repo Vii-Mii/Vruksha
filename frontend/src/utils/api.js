@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8000/api'
-// Backend origin (used to prefix relative static paths returned by the backend)
-export const BACKEND_ORIGIN = API_BASE_URL.replace(/\/api$/,'')
+// Use Vite-provided env variable VITE_API_URL in production. It should be the
+// backend origin WITHOUT the trailing /api. For local dev, default to localhost:8000
+export const BACKEND_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000')
+const API_BASE_URL = `${BACKEND_ORIGIN.replace(/\/$/, '')}/api`
 
 export const api = {
   getProducts: async (category = null) => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { BACKEND_ORIGIN } from '../utils/api'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import './Auth.css'
@@ -27,7 +28,7 @@ const Login = () => {
     setError('')
 
     try {
-  const response = await fetch(`${BACKEND_ORIGIN.replace(/\/$/, '')}/api/auth/login`, {
+  const response = await fetch(`${(BACKEND_ORIGIN || 'http://localhost:8000').replace(/\/$/, '')}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

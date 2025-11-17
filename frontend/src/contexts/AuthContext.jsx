@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
       if (storedToken) {
         // try to refresh user from server to ensure we have latest claims (is_admin etc.)
         try {
-          const resp = await fetch(`${BACKEND_ORIGIN.replace(/\/$/, '')}/api/auth/me`, {
+          const resp = await fetch(`${(BACKEND_ORIGIN || 'http://localhost:8000').replace(/\/$/, '')}/api/auth/me`, {
             headers: { Authorization: `Bearer ${storedToken}` }
           })
           if (resp.ok) {
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       ;(async () => {
         try {
-          const resp = await fetch(`${BACKEND_ORIGIN.replace(/\/$/, '')}/api/users/me`, {
+          const resp = await fetch(`${(BACKEND_ORIGIN || 'http://localhost:8000').replace(/\/$/, '')}/api/users/me`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify(updates)

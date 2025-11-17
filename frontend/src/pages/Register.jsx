@@ -51,7 +51,7 @@ const Register = () => {
     }
 
     try {
-  const response = await fetch(`${BACKEND_ORIGIN.replace(/\/$/, '')}/api/auth/register`, {
+  const response = await fetch(`${(BACKEND_ORIGIN || 'http://localhost:8000').replace(/\/$/, '')}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

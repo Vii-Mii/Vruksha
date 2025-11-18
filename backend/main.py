@@ -58,13 +58,18 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 security = HTTPBearer()
 
 # Database setup
-# Use DATABASE_URL env var if provided (Postgres for production), otherwise fall back to local sqlite
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL") or "sqlite:///./vruksha.db"
+# Prefer Railway's provided DATABASE_URL (internal) and fall back to DATABASE_PUBLIC_URL (shuttle proxy) or local sqlite
+db_url = os.getenv("DATABASE_URL") or os.getenv("DATABASE_PUBLIC_URL") or "sqlite:///./vruksha.db"
+# SQLAlchemy / psycopg drivers expect the scheme 'postgresql://' rather than the legacy 'postgres://'
+if isinstance(db_url, str) and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+SQLALCHEMY_DATABASE_URL = db_url
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    # For postgres and other drivers, do not pass sqlite-specific connect args
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    # For Postgres use a liveliness ping to avoid stale connections on some platforms
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
